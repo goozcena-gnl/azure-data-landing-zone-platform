@@ -97,6 +97,10 @@ resource "azurerm_log_analytics_workspace" "main" {
 resource "random_string" "key_vault_suffix" {
   count = var.enable_key_vault ? 1 : 0
 
+  keepers = {
+    name_prefix = var.name_prefix
+    environment = var.environment
+  }
   length  = 5
   upper   = false
   special = false

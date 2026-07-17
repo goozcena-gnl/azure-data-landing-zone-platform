@@ -14,7 +14,7 @@ variable "resource_group_ids" {
 }
 
 variable "allowed_locations" {
-  description = "Azure locations accepted by the policy."
+  description = "Azure locations accepted by the location policy. Global-scope resources are always exempt."
   type        = list(string)
 }
 

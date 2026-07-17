@@ -1,4 +1,7 @@
 resource "random_string" "suffix" {
+  keepers = {
+    name_prefix = var.name_prefix
+  }
   length  = 6
   upper   = false
   special = false
@@ -37,18 +40,11 @@ resource "azurerm_storage_account" "state" {
 
   network_rules {
     default_action = "Deny"
-    bypass         = ["AzureServices"]
+    bypass         = ["AzureServices", "Logging", "Metrics"]
     ip_rules       = var.allowed_ip_addresses
   }
 
   tags = local.tags
-
-  lifecycle {
-    precondition {
-      condition     = length(substr("st${var.name_prefix}${random_string.suffix.result}", 0, 24)) >= 3 && length(substr("st${var.name_prefix}${random_string.suffix.result}", 0, 24)) <= 24
-      error_message = "The generated storage account name is invalid. Shorten name_prefix."
-    }
-  }
 }
 
 resource "azurerm_storage_container" "state" {

@@ -4,8 +4,8 @@ variable "subscription_id" {
   sensitive   = true
 
   validation {
-    condition     = can(regex("^[0-9a-fA-F-]{36}$", var.subscription_id))
-    error_message = "subscription_id must be a UUID."
+    condition     = can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", var.subscription_id))
+    error_message = "subscription_id must be a valid UUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)."
   }
 }
 
@@ -15,8 +15,8 @@ variable "tenant_id" {
   sensitive   = true
 
   validation {
-    condition     = can(regex("^[0-9a-fA-F-]{36}$", var.tenant_id))
-    error_message = "tenant_id must be a UUID."
+    condition     = can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", var.tenant_id))
+    error_message = "tenant_id must be a valid UUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)."
   }
 }
 
