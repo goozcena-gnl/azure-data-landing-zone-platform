@@ -1,0 +1,52 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  terraformVersion: '1.15.8'
+  terraformWorkingDirectory: 'infra/landing-zone'
+
+stages:
+  - stage: Validate
+    displayName: Static validation
+    jobs:
+      - job: Terraform
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+            clean: true
+            persistCredentials: false
+
+          - bash: |
+              set -euo pipefail
+              curl -fsSLo terraform.zip \
+                "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip"
+              echo "d25ce7b6902013ad905db3d2eab0be4cd905887fe88b81a6171b8d5503c31f3d  terraform.zip" | sha256sum -c -
+              unzip -q terraform.zip
+              sudo install -m 0755 terraform /usr/local/bin/terraform
+              terraform version
+            displayName: Install verified Terraform
+
+          - bash: terraform fmt -check -recursive
+            displayName: Terraform format
+
+          - bash: terraform init -backend=false -input=false
+            workingDirectory: $(terraformWorkingDirectory)
+            displayName: Terraform init without backend
+
+          - bash: terraform validate -no-color
+            workingDirectory: $(terraformWorkingDirectory)
+            displayName: Terraform validate
+
+          - bash: |
+              set -euo pipefail
+              python3 -m pip install --disable-pip-version-check --no-input checkov==3.3.8
+              checkov --directory . --config-file .checkov.yml
+            displayName: Checkov IaC scan

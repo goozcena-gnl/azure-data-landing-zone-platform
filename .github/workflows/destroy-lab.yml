@@ -1,0 +1,85 @@
+name: Destroy Azure lab
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type DESTROY-LAB
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: azure-lab-state
+  cancel-in-progress: false
+
+env:
+  TERRAFORM_VERSION: 1.15.8
+  TERRAFORM_SHA256: d25ce7b6902013ad905db3d2eab0be4cd905887fe88b81a6171b8d5503c31f3d
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  ARM_USE_OIDC: true
+
+jobs:
+  destroy:
+    if: inputs.confirmation == 'DESTROY-LAB'
+    runs-on: [self-hosted, linux, x64, azure-lab]
+    environment: azure-lab-destroy
+    env:
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_tenant_id: ${{ vars.AZURE_TENANT_ID }}
+      TF_VAR_name_prefix: ${{ vars.TF_VAR_NAME_PREFIX }}
+      TF_VAR_location: ${{ vars.TF_VAR_LOCATION }}
+      TF_VAR_owner_tag: ${{ vars.TF_VAR_OWNER_TAG }}
+      TF_VAR_enable_aks: ${{ vars.TF_VAR_ENABLE_AKS }}
+      TF_VAR_aks_authorized_ip_ranges: ${{ vars.TF_VAR_AKS_AUTHORIZED_IP_RANGES }}
+      TF_VAR_aks_admin_group_object_ids: ${{ vars.TF_VAR_AKS_ADMIN_GROUP_OBJECT_IDS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Azure login through OIDC
+        uses: azure/login@532459ea530d8321f2fb9bb10d1e0bcf23869a43  # v3.0.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install verified Terraform
+        run: |
+          archive="terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+          curl --proto '=https' --tlsv1.2 -fsSLo "${archive}" \
+            "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${archive}"
+          echo "${TERRAFORM_SHA256}  ${archive}" | sha256sum -c -
+          unzip -q "${archive}"
+          sudo install -m 0755 terraform /usr/local/bin/terraform
+          rm -f "${archive}" terraform
+
+      - name: Plan and apply destruction
+        working-directory: infra/landing-zone
+        run: |
+          terraform init -input=false \
+            -backend-config="resource_group_name=${{ vars.TF_STATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ vars.TF_STATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ vars.TF_STATE_CONTAINER }}" \
+            -backend-config="key=landing-zone/lab.tfstate" \
+            -backend-config="use_azuread_auth=true"
+          terraform plan -destroy \
+            -input=false \
+            -lock-timeout=5m \
+            -out=destroy.tfplan
+          terraform apply -input=false -lock-timeout=5m destroy.tfplan
+
+      - name: Remove local destroy material
+        if: always()
+        run: |
+          rm -rf infra/landing-zone/.terraform
+          rm -f infra/landing-zone/destroy.tfplan

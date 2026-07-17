@@ -1,0 +1,28 @@
+# Copy to terraform.tfvars locally. Never commit the copied file.
+subscription_id = "00000000-0000-0000-0000-000000000000"
+tenant_id       = "00000000-0000-0000-0000-000000000000"
+
+name_prefix = "dlz"
+environment = "lab"
+location    = "francecentral"
+owner_tag   = "portfolio"
+
+# Foundation-only deployment is the default low-cost validation path.
+enable_governance = true
+enable_key_vault  = false
+enable_aks        = false
+
+# Enable AKS only after checking quota, SKU availability, and current pricing.
+aks_private_cluster_enabled = false
+aks_authorized_ip_ranges    = ["203.0.113.10/32"]
+aks_admin_group_object_ids  = ["00000000-0000-0000-0000-000000000000"]
+aks_kubernetes_version      = null
+aks_node_vm_size            = "Standard_D2s_v5"
+aks_node_count              = 1
+
+enable_aks_monitoring   = true
+enable_aks_azure_policy = true
+
+additional_tags = {
+  cost-center = "personal-lab"
+}

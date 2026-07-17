@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import re
+from pathlib import Path
+
+root = Path(__file__).resolve().parents[1]
+errors: list[str] = []
+private_marker = b"-----BEGIN " + b"PRIVATE KEY-----"
+openssh_marker = b"-----BEGIN " + b"OPENSSH PRIVATE KEY-----"
+for path in root.rglob("*"):
+    rel = path.relative_to(root)
+    rel_s = rel.as_posix()
+    if path.is_dir() and path.name == ".git" and rel_s != ".git":
+        errors.append(f"nested Git metadata: {rel_s}")
+    if path.name.endswith("Zone.Identifier") or ":Zone.Identifier" in path.name:
+        errors.append(f"Windows ADS metadata: {rel_s}")
+    if path.is_file():
+        if path.stat().st_size > 10 * 1024 * 1024:
+            errors.append(f"file larger than 10 MiB: {rel_s}")
+        if path.name in {"terraform.tfstate", "terraform.tfstate.backup", "terraform.tfvars", "backend.hcl", "azure.json"}:
+            errors.append(f"forbidden local file: {rel_s}")
+        if re.search(r"(^|/)(terraform|kubectl|helm|inframap)(\.exe)?$", rel_s):
+            errors.append(f"committed tool binary: {rel_s}")
+        try: data=path.read_bytes()[:4096]
+        except OSError: continue
+        if private_marker in data or openssh_marker in data:
+            errors.append(f"private key marker: {rel_s}")
+
+sha_action = re.compile(r"^\s*uses:\s+[^./][^@\s]*@([0-9a-f]{40})(?:\s+#.*)?$")
+for workflow in (root / ".github" / "workflows").glob("*.yml"):
+    for line_number, line in enumerate(workflow.read_text(encoding="utf-8").splitlines(), 1):
+        stripped = line.strip()
+        if stripped.startswith("uses:") and not stripped.startswith("uses: ./"):
+            if not sha_action.match(line):
+                errors.append(
+                    f"GitHub Action is not pinned to a full commit SHA: "
+                    f"{workflow.relative_to(root)}:{line_number}"
+                )
+
+if errors:
+    print("Repository policy: FAIL")
+    print("\n".join(f"- {item}" for item in errors))
+    raise SystemExit(1)
+print("Repository policy: PASS")

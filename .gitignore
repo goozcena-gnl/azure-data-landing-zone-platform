@@ -1,0 +1,84 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.plan
+plan.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+*.tfvars
+!*.tfvars.example
+backend.hcl
+!backend.hcl.example
+
+# Credentials and local cloud state
+.env
+.env.*
+!.env.example
+azure.json
+kubeconfig*
+*.kubeconfig
+*.pem
+*.key
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+.ssh/
+.azure/
+
+# Generated evidence and scans
+artifacts/
+reports/generated/
+checkov-results.*
+trivy-results.*
+scan-results.*
+*.sarif
+
+# Tool binaries and archives
+terraform
+kubectl
+helm
+inframap
+*.exe
+*.dll
+*.so
+*.dylib
+*.zip
+*.rar
+*.7z
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# .NET
+bin/
+obj/
+TestResults/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
+*:Zone.Identifier
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.orig

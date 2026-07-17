@@ -1,0 +1,22 @@
+name: Bug report
+description: Report a reproducible defect
+title: "bug: "
+labels: [bug]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Do not include credentials, identifiers, kubeconfig, state, or plans.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized evidence

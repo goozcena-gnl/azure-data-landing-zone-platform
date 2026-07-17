@@ -1,0 +1,23 @@
+compact: true
+directory:
+  - infra
+framework:
+  - terraform
+quiet: true
+soft-fail: false
+skip-check:
+  # Every exception is scoped to the disposable lab and documented in
+  # docs/security/scan-exceptions.md. Reassess before persistent/shared use.
+  - CKV_AZURE_33
+  - CKV_AZURE_59
+  - CKV_AZURE_110
+  - CKV_AZURE_115
+  - CKV_AZURE_117
+  - CKV_AZURE_170
+  - CKV_AZURE_206
+  - CKV_AZURE_226
+  - CKV_AZURE_227
+  - CKV_AZURE_232
+  - CKV2_AZURE_1
+  - CKV2_AZURE_21
+  - CKV2_AZURE_33
