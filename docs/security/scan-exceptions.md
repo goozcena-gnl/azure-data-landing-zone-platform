@@ -8,7 +8,7 @@ customer-data use.
 ## Exception register
 
 | Check | Scope | Lab rationale | Compensating controls | Production position |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `CKV_AZURE_33` | Terraform state storage | Queue service logging is not configured because the backend uses Blob storage only. | State container is private; shared-key access is disabled; access is via Entra ID and RBAC. | Configure diagnostic settings and retain audit logs according to the organization policy. |
 | `CKV_AZURE_59` | Terraform state storage | Public network access is retained to permit a clean-clone workflow and GitHub-hosted runners. | Default network action is deny; only declared public IP ranges are allowed; shared-key access is disabled. | Use a private endpoint, private DNS, and a private/self-hosted runner. |
 | `CKV_AZURE_110` | Optional lab Key Vault | Purge protection can prevent prompt teardown of a disposable lab. | Key Vault is disabled by default; no production data; dedicated lab scope; soft-delete retention remains configured. | Enable purge protection and an approved retention period. |

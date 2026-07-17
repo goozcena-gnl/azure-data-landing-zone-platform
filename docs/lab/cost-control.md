@@ -11,7 +11,7 @@ resources.
 The following is a deliberately broad safety envelope, not a quote:
 
 | Scenario | Operating assumption | Planning envelope |
-|---|---|---:|
+| --- | --- | ---- |
 | Foundation-only, idle | State storage, VNet/NSGs, policy, mostly empty Log Analytics workspace | approximately EUR 0-5/month |
 | One short AKS exercise | One `Standard_D2s_v5` node for up to four hours, limited logs, same-day destroy | approximately EUR 1-5/session |
 | AKS left running continuously | One node, disk/load-balancer/networking, Container Insights and metrics | approximately EUR 100-250+/month |

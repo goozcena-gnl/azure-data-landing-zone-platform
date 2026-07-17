@@ -14,7 +14,7 @@ PATTERNS = {
     "generic-password": re.compile(r'''(?i)(?:password|passwd)\s*[:=]\s*["']?(?!<|example|dummy|\$\{)[^\s"']{12,}'''),
     "sas-token": re.compile(r"(?i)[?&]sig=[A-Za-z0-9%+/=]{20,}"),
 }
-SKIP_NAMES={"secret-scan.py"}
+SKIP_NAMES={".terraform.lock.hcl", "secret-scan.py"}
 SKIP_DIRS={".git", ".terraform", ".venv", "artifacts", "__pycache__"}
 TEXT_EXTENSIONS={".tf", ".md", ".yml", ".yaml", ".json", ".txt", ".sh", ".py", ".hcl", ".example", ".gitignore", ".gitattributes", ".editorconfig"}
 

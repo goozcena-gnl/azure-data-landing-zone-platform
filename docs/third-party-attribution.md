@@ -5,7 +5,7 @@ several upstream projects. The sanitized repository keeps only project-owned
 configuration and documentation.
 
 | Component | Likely origin | Licensing observed/expected | Archive decision | Publishable representation |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Jupyter Docker Stacks | `jupyter/docker-stacks` | BSD-3-Clause upstream | Complete clean checkout externalized | Use a pinned upstream container image; add only a project-owned Dockerfile overlay if customization is required. |
 | JupyterHub Helm chart | `jupyterhub/zero-to-jupyterhub-k8s` | BSD-3-Clause upstream | Upstream source not retained | Pinned chart version plus `platform/jupyter/values.lab.yaml`. |
 | Azure Naming Tool | Microsoft/Azure upstream repository | MIT upstream | Complete source copy removed because authorship/modification history was unclear | Deploy a pinned release, container image, or clearly attributed fork. |

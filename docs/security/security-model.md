@@ -1,7 +1,7 @@
 # Security model
 
 | Threat | Control |
-|---|---|
+| --- | --- |
 | Long-lived CI credential theft | GitHub OIDC; no client secret |
 | Storage key leakage | shared keys disabled; Azure RBAC backend |
 | State exposure | private container, restricted network rules, short-lived local files |

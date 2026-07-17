@@ -55,7 +55,7 @@ policy definitions, and role assignments. This repository uses all three when
 the corresponding feature flags are enabled.
 
 | Scope | Minimum capability | Why |
-|---|---|---|
+| --- | --- | --- |
 | State storage account | `Storage Blob Data Contributor` | Read/write/lock Terraform state using Entra data-plane authorization. |
 | State storage account management plane | permission to read the account configuration | Required by backend discovery; the self-hosted runner IP is pre-authorized. |
 | Subscription | custom deployment role, or `Contributor` for the isolated lab | Resource-group creation occurs at subscription scope. `Contributor` is justified only for this dedicated disposable subscription/lab scope. |
