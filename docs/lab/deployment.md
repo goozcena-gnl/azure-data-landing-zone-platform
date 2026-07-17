@@ -42,10 +42,10 @@ aks_authorized_ip_ranges   = ["<PUBLIC_IP>/32"]
 Create/review a new plan, apply it, then:
 
 ```bash
-./scripts/get-aks-credentials.sh
+bash ./scripts/get-aks-credentials.sh
 export KUBECONFIG="$PWD/artifacts/kubeconfig-lab"
 kubectl get nodes
 kubectl get pods -A
-./scripts/deploy-jupyter.sh
+bash ./scripts/deploy-jupyter.sh
 make smoke-test
 ```

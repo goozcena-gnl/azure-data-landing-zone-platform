@@ -39,7 +39,7 @@ jobs:
         run: npm install --global markdownlint-cli@0.49.0
 
       - name: Repository lint
-        run: ./scripts/lint.sh
+        run: bash ./scripts/lint.sh
 
       - name: Secret-pattern scan
         run: python3 scripts/secret-scan.py --root .
@@ -70,7 +70,7 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Initialize and validate components
-        run: ./scripts/terraform-validate.sh
+        run: bash ./scripts/terraform-validate.sh
 
       - name: Install TFLint
         uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93  # v6.2.2
@@ -88,4 +88,4 @@ jobs:
             --disable-pip-version-check \
             --no-input \
             checkov==3.3.8
-          ./scripts/security-scan.sh
+          bash ./scripts/security-scan.sh

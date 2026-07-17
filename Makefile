@@ -10,27 +10,27 @@ format: ## Format Terraform files
 	terraform fmt -recursive
 
 lint: ## Run repository, YAML, shell, and Terraform lint checks
-	./scripts/lint.sh
+	bash ./scripts/lint.sh
 
 validate: ## Initialize Terraform without the remote backend and validate
-	./scripts/terraform-validate.sh
+	bash ./scripts/terraform-validate.sh
 
 security: ## Run Checkov and deterministic secret-pattern scanning
-	./scripts/security-scan.sh
+	bash ./scripts/security-scan.sh
 
 test: lint validate security docs-check ## Run all non-deployment checks
 
 plan-lab: ## Create a reviewed lab plan
-	./scripts/plan-lab.sh
+	bash ./scripts/plan-lab.sh
 
 deploy-lab: ## Apply the exact reviewed lab plan
-	./scripts/deploy-lab.sh
+	bash ./scripts/deploy-lab.sh
 
 smoke-test: ## Verify Azure and AKS lab health
-	./scripts/smoke-test.sh
+	bash ./scripts/smoke-test.sh
 
 destroy-lab: ## Destroy the disposable lab
-	./scripts/destroy-lab.sh
+	bash ./scripts/destroy-lab.sh
 
 docs-check: ## Validate local Markdown links
 	python3 scripts/check-doc-links.py

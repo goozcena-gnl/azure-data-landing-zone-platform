@@ -146,9 +146,9 @@ Full runbook: [`docs/lab/deployment.md`](docs/lab/deployment.md).
 Before enabling AKS, verify current regional SKU availability, quota, Kubernetes support, and pricing. Configure a Microsoft Entra admin group and an authorized API CIDR. After deployment:
 
 ```bash
-./scripts/get-aks-credentials.sh
+bash ./scripts/get-aks-credentials.sh
 export KUBECONFIG="$PWD/artifacts/kubeconfig-lab"
-./scripts/deploy-jupyter.sh
+bash ./scripts/deploy-jupyter.sh
 make smoke-test
 ```
 

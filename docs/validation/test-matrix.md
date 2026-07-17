@@ -14,6 +14,6 @@
 | D | Foundation apply | `make deploy-lab` | Terraform/Azure success |
 | D | Optional AKS | reviewed plan/apply | expected identity/network/security settings |
 | E | Smoke tests | `make smoke-test` | expected Azure inventory; nodes/workloads healthy |
-| E | JupyterHub | `./scripts/deploy-jupyter.sh` | Helm healthy; local endpoint responds |
+| E | JupyterHub | `bash ./scripts/deploy-jupyter.sh` | Helm healthy; local endpoint responds |
 | E | Logging | documented KQL | recent expected records |
 | F | Destroy | `make destroy-lab` | apply succeeds; no unexplained chargeable remnants |

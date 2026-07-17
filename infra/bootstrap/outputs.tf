@@ -15,7 +15,7 @@ output "container_name" {
 
 output "backend_hcl" {
   description = "Sanitized backend configuration containing no credential."
-  value = <<-EOT
+  value       = <<-EOT
   resource_group_name  = "${azurerm_resource_group.state.name}"
   storage_account_name = "${azurerm_storage_account.state.name}"
   container_name       = "${azurerm_storage_container.state.name}"

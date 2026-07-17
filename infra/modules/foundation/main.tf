@@ -83,15 +83,15 @@ resource "azurerm_subnet_network_security_group_association" "shared_services" {
 }
 
 resource "azurerm_log_analytics_workspace" "main" {
-  name                = "log-${var.name_prefix}-${var.environment}"
-  location            = azurerm_resource_group.management.location
-  resource_group_name = azurerm_resource_group.management.name
-  sku                 = "PerGB2018"
-  retention_in_days   = var.log_retention_days
-  daily_quota_gb      = 1
+  name                       = "log-${var.name_prefix}-${var.environment}"
+  location                   = azurerm_resource_group.management.location
+  resource_group_name        = azurerm_resource_group.management.name
+  sku                        = "PerGB2018"
+  retention_in_days          = var.log_retention_days
+  daily_quota_gb             = 1
   internet_ingestion_enabled = true
   internet_query_enabled     = true
-  tags                = var.tags
+  tags                       = var.tags
 }
 
 resource "random_string" "key_vault_suffix" {
