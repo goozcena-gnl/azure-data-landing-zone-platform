@@ -1,7 +1,7 @@
 # Test matrix
 
 | Layer | Test | Command | Success evidence |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | A | Repository policy | `python3 tests/repository_policy.py` | no forbidden files/binaries/key markers |
 | A | Secret pattern scan | `python3 scripts/secret-scan.py --root .` | zero findings |
 | B | HCL parsing | local parser utility | every `.tf` parses |

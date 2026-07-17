@@ -69,7 +69,7 @@ docs/                       Architecture, security, lab, migration, and evidence
 ## Scope and evidence
 
 | Capability | Default | Current evidence |
-|---|---:|---|
+| --- | ---: | --- |
 | Resource groups, VNet, NSGs, Log Analytics | Enabled | Implemented; local static checks |
 | Tag/location policies | Enabled | Implemented; Azure behavior not yet verified |
 | Private Key Vault | Disabled | Implemented; not deployed |

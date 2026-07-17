@@ -12,7 +12,7 @@
 ## Results
 
 | Test | Command | Status | Evidence | Limitation |
-|---|---|---:|---|---|
+| --- | --- | ---: | --- | --- |
 | Original archive extraction and inventory | Phase 1 audit | PASS | 2,317 entries; 2,051 regular files; 572.68 MiB | Original archive only |
 | Repository publication policy | `python3 tests/repository_policy.py` | PASS | no forbidden state, plans, binaries, nested Git metadata, key markers, oversized files, or mutable GitHub Action refs | Static file policy only |
 | Bash parsing | `bash -n scripts/*.sh` | PASS | every retained shell script parsed | No Azure operation executed |

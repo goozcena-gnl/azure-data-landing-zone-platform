@@ -45,7 +45,7 @@ resource "azurerm_storage_account" "state" {
 
   lifecycle {
     precondition {
-      condition     = length(azurerm_storage_account.state.name) >= 3 && length(azurerm_storage_account.state.name) <= 24
+      condition     = length(substr("st${var.name_prefix}${random_string.suffix.result}", 0, 24)) >= 3 && length(substr("st${var.name_prefix}${random_string.suffix.result}", 0, 24)) <= 24
       error_message = "The generated storage account name is invalid. Shorten name_prefix."
     }
   }
