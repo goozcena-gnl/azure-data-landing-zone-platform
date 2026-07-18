@@ -6,27 +6,42 @@ No repository setting, branch-protection rule, ruleset, environment, Actions
 variable, secret, or OIDC credential was created or modified during
 finalization.
 
-The prior assessment found that the desired branch-protection rule would not
-be enforced under the repository's current organization plan. Creating an
-unenforced rule would provide false assurance, so no branch-protection mutation
-is recommended until repository visibility or organization licensing changes.
+The repository-rulesets API returned HTTP 403 while the repository was private:
+the feature requires an organization-plan upgrade or public visibility. No
+unenforced rule was created. GitHub documents repository rulesets as available
+to public repositories on GitHub Free, so reassess immediately after an
+authorized visibility change.
 
-## Target protection baseline
+## Prepared main ruleset
 
-When GitHub confirms enforcement for this repository:
+The reviewed import payload is
+[`main-ruleset.json`](main-ruleset.json). It is prepared but has not been
+submitted. It targets only the default branch and has no bypass actor.
 
-- require pull requests into `main`;
-- require at least one approval;
-- dismiss stale approvals after material changes;
-- require conversation resolution;
-- require the `Validate` checks;
-- include the dependency-review check only when GitHub makes it available;
-- block force pushes and branch deletion;
-- apply the rule to administrators where organizational policy permits;
-- restrict deployment environments to reviewed branches.
+The payload requires:
 
-Do not copy commands from this document into a live repository before a
-repository administrator confirms the rule target and enforcement status.
+- pull requests before changes reach `main`;
+- zero approving reviews while there is only one trusted maintainer;
+- conversation resolution;
+- a current branch before merge;
+- linear history with squash or rebase merge;
+- the three GitHub Actions checks below;
+- blocked force pushes and branch deletion.
+
+| GitHub check | Ruleset context | Source |
+| --- | --- | --- |
+| `Validate / repository` | `repository` | GitHub Actions app `15368` |
+| `Validate / terraform` | `terraform` | GitHub Actions app `15368` |
+| `Dependency review / review` | `review` | GitHub Actions app `15368` |
+
+GitHub's ruleset API uses the job context, not the displayed
+`workflow / job` label. The job names are unique across repository workflows.
+If a second trusted reviewer becomes available, increase
+`required_approving_review_count` from `0` to `1`; do not enable
+`require_last_push_approval` for a sole maintainer.
+
+Do not apply the ruleset until a repository administrator confirms public
+visibility, successful required checks, and ruleset enforcement availability.
 
 ## Read-only assessment commands
 
@@ -40,14 +55,18 @@ gh api \
   "repos/<github-owner>/<repository>/branches/main/protection"
 
 gh api \
+  "repos/<github-owner>/<repository>/rulesets"
+
+gh api \
   "repos/<github-owner>/<repository>/environments"
 
 gh variable list --repo "<github-owner>/<repository>"
 gh secret list --repo "<github-owner>/<repository>"
 ```
 
-An HTTP 404 or unavailable feature is not evidence that protection is active.
-Record repository visibility, organization plan, and the exact API result.
+An HTTP 403, 404, or unavailable feature is not evidence that protection is
+active. Record repository visibility, organization plan, and the exact API
+result.
 
 ## Actions policy
 
@@ -72,21 +91,24 @@ ephemeral or reimaged host, no stored reusable Azure credential, a stable
 allowlisted outbound address for the backend, current patches, restricted
 network egress, and no access to unrelated repositories.
 
-## Suggested commands after enforcement becomes available
+## Apply only after authorization
 
-Prefer the GitHub web interface or a reviewed ruleset payload because supported
-fields change over time. If automation is approved, save the exact JSON payload
-in a private change record and use:
+After the repository is public, all three checks have reported on the current
+default-branch commit, and the maintainer explicitly authorizes the mutation:
 
 ```bash
 gh api \
-  --method PUT \
-  "repos/<github-owner>/<repository>/branches/main/protection" \
-  --input "<reviewed-protection-payload.json>"
+  --method POST \
+  -H "X-GitHub-Api-Version: 2026-03-10" \
+  "repos/<github-owner>/<repository>/rulesets" \
+  --input docs/github/main-ruleset.json
 ```
 
-This is a mutation and requires explicit authorization. Verify afterwards with
-a read-only GET and a controlled pull-request test.
+Verify the returned ruleset and effective rules with read-only GET requests,
+then use a controlled pull request to prove that direct pushes, force pushes,
+deletion, stale branches, unresolved conversations, and missing checks are
+blocked. The command above is a mutation and must not be run without explicit
+authorization.
 
 ## Publication settings
 
