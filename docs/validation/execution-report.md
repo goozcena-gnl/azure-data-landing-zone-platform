@@ -45,6 +45,8 @@
 | JupyterHub deployment | not run | NOT RUN | AKS prerequisite absent | No endpoint test |
 | GitHub OIDC deployment | not run | NOT RUN | credentials and variables absent | Manual administration required |
 | GitHub Environment gates | not run | NOT RUN | environments absent | Current plan enforcement must be checked |
+| Fresh tracked-file archive | `make package-release` | PASS | ZIP, CSV manifest, and SHA-256 checksums generated; clean extraction reran static checks | Output stored outside repository |
+| Extracted archive Bats/Markdown | Bats 1.12.0 and Markdownlint 0.49.0 | PASS | 6 Bats tests and all Markdown files passed in extracted copy | No live Azure call |
 | Branch protection | read-only assessment | NOT APPLICABLE | no setting changed; current organization plan would not enforce target rule | Reassess before relying on it |
 
 The full lifecycle evidence, including plan hashes and explicit exclusions, is
@@ -57,6 +59,10 @@ Known limitations are in
 The backend defects are fixed and covered by both executable standalone tests
 and the existing Bats framework. Terraform's provider-mocked tests prove that
 invalid Jupyter/AKS, group-ID, node-count, VM-size, and location combinations
+
+The final package is generated only from committed `HEAD`. Its external
+`file-manifest.csv` records path, size, content SHA-256, and publication
+category; `SHA256SUMS` verifies both the ZIP and manifest.
 fail before an Azure plan.
 
 The read-only AKS preflight did not deploy anything. It confirmed that the
