@@ -76,11 +76,12 @@ base_args() {
   mapfile -t args < <(base_args)
   run "$SCRIPT" "${args[@]}" --dry-run
   [ "$status" -eq 0 ]
-  first=$(grep 'Nom Storage cible:' <<< "$output" | tail -1)
+  first=$(sed -n 's/^.*Nom Storage cible: //p' <<< "$output" | tail -1)
+  [ -n "$first" ]
 
   run "$SCRIPT" "${args[@]}" --dry-run
   [ "$status" -eq 0 ]
-  second=$(grep 'Nom Storage cible:' <<< "$output" | tail -1)
+  second=$(sed -n 's/^.*Nom Storage cible: //p' <<< "$output" | tail -1)
   [ "$first" = "$second" ]
 }
 
