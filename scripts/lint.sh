@@ -14,7 +14,9 @@ else
   log 'yamllint not installed; YAML lint skipped.'
 fi
 
-mapfile -t shell_files < <(find scripts -type f -name '*.sh' -print)
+mapfile -t shell_files < <(
+  find scripts terraform_backend_setup -type f -name '*.sh' -print
+)
 for file in "${shell_files[@]}"; do bash -n "$file"; done
 if command -v shellcheck >/dev/null 2>&1; then shellcheck -x "${shell_files[@]}"; else log 'shellcheck not installed; shell lint skipped.'; fi
 
