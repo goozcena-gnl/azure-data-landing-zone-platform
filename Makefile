@@ -16,6 +16,7 @@ validate: ## Initialize Terraform without the remote backend and validate
 	bash ./scripts/terraform-validate.sh
 
 terraform-test: ## Run provider-mocked Terraform input tests
+	TF_DATA_DIR="$${TF_DATA_ROOT:-$${XDG_CACHE_HOME:-$${HOME}/.cache}/azure-data-landing-zone-platform/terraform}/landing-zone" terraform -chdir=infra/landing-zone init -backend=false -input=false -no-color
 	TF_DATA_DIR="$${TF_DATA_ROOT:-$${XDG_CACHE_HOME:-$${HOME}/.cache}/azure-data-landing-zone-platform/terraform}/landing-zone" terraform -chdir=infra/landing-zone test -no-color
 
 security: ## Run Checkov and deterministic secret-pattern scanning
