@@ -16,6 +16,9 @@
 ├── docs/
 │   ├── architecture/
 │   ├── decisions/
+│   ├── entra/
+│   ├── github/
+│   ├── known-limitations.md
 │   ├── lab/
 │   ├── migration/
 │   ├── reports/
@@ -33,6 +36,7 @@
 │   └── naming-tool/
 ├── scripts/
 ├── tests/
+├── terraform_backend_setup/
 ├── .checkov.yml
 ├── .editorconfig
 ├── .gitattributes

@@ -2,7 +2,7 @@
 
 A portfolio-oriented Azure landing-zone lab demonstrating modular Terraform, governance, networking, observability, AKS, workload identity, secure state management, and reviewed CI/CD without presenting an unverified lab as production-ready.
 
-> **Status:** sanitized engineering baseline. Local validation is recorded in [`docs/validation/execution-report.md`](docs/validation/execution-report.md). Azure plan, deployment, smoke tests, and destruction require an authenticated personal subscription and remain unclaimed until objective evidence is added.
+> **Status:** the disposable Azure foundation lifecycle was empirically validated end to end: a reviewed `34 add / 0 change / 0 destroy` plan, exact-plan apply, no-drift refresh, smoke tests, reviewed `34 destroy` plan, exact destruction, residual checks, and separate backend deletion. AKS, JupyterHub, GitHub OIDC, and GitHub-controlled deployment remain unvalidated. See the [sanitized lifecycle evidence](docs/validation/2026-07-18-foundation-lifecycle.md).
 
 ## Project value
 
@@ -14,8 +14,8 @@ Key capabilities:
 - modular resource groups, VNet/subnets, NSGs, Log Analytics, and optional private Key Vault;
 - Azure Policy definitions and assignments for locations and required tags;
 - optional AKS with Microsoft Entra Azure RBAC, disabled local accounts, OIDC, Workload Identity, Azure CNI Overlay, and Cilium;
-- JupyterHub represented as a pinned Helm overlay rather than vendored upstream source;
-- pull-request validation plus protected plan/apply and destroy workflows;
+- JupyterHub represented as a version-pinned Helm overlay rather than vendored upstream source;
+- pull-request validation plus OIDC-ready plan/apply and destroy workflows designed for protected environments;
 - explicit evidence levels: implemented, statically validated, planned, deployed, smoke-tested, or not run.
 
 ## Architecture
@@ -70,11 +70,12 @@ docs/                       Architecture, security, lab, migration, and evidence
 
 | Capability | Default | Current evidence |
 | --- | ---: | --- |
-| Resource groups, VNet, NSGs, Log Analytics | Enabled | Implemented; local static checks |
-| Tag/location policies | Enabled | Implemented; Azure behavior not yet verified |
+| Resource groups, VNet, NSGs, Log Analytics | Enabled | Implemented, statically validated, deployed, smoke-tested, destroyed |
+| Tag/location policies | Enabled | Implemented, statically validated, deployed, inventory-checked, destroyed |
 | Private Key Vault | Disabled | Implemented; not deployed |
-| AKS | Disabled | Implemented; not deployed |
-| JupyterHub | Manual after AKS | Overlay implemented; not deployed |
+| AKS | Disabled | Implemented and statically validated; preflight added; not deployed |
+| JupyterHub | Disabled/manual after AKS | Overlay implemented; not deployed |
+| GitHub OIDC deployment | Manual | Workflows and guides prepared; environments/credentials absent; not exercised |
 | Databricks, Synapse, SQL, Data Factory, VM | Excluded | Historical prototypes, not validated here |
 | Azure Naming Tool | Externalized | Upstream dependency only |
 
@@ -96,7 +97,7 @@ Static validation:
 
 - Git and Bash;
 - Terraform `1.15.8`;
-- Python 3.11+ and `requirements-dev.txt`;
+- Python 3.11+, `jq`, and `requirements-dev.txt`;
 - TFLint `0.63.1` with AzureRM rules;
 - Make, ShellCheck, and Markdownlint CLI.
 
@@ -113,6 +114,7 @@ python3 -m pip install -r requirements-dev.txt
 make lint
 make validate
 make security
+make backend-test
 make docs-check
 ```
 
@@ -127,7 +129,7 @@ az account set --subscription "<SUBSCRIPTION_ID>"
 cp infra/bootstrap/terraform.tfvars.example infra/bootstrap/terraform.tfvars
 # Edit placeholders and trusted public IPv4 address.
 terraform -chdir=infra/bootstrap init
-terraform -chdir=infra/bootstrap plan -out=bootstrap.tfplan
+terraform -chdir=infra/bootstrap plan -out=bootstrap.tfplan # review before apply
 terraform -chdir=infra/bootstrap apply bootstrap.tfplan
 terraform -chdir=infra/bootstrap output -raw backend_hcl > infra/landing-zone/backend.hcl
 
@@ -143,7 +145,19 @@ Full runbook: [`docs/lab/deployment.md`](docs/lab/deployment.md).
 
 ## Optional AKS and JupyterHub
 
-Before enabling AKS, verify current regional SKU availability, quota, Kubernetes support, and pricing. Configure a Microsoft Entra admin group and an authorized API CIDR. After deployment:
+Before enabling AKS, verify current regional SKU availability, quota, Kubernetes support, and pricing. Configure a Microsoft Entra admin group and an authorized API CIDR:
+
+```bash
+bash ./scripts/aks-preflight.sh \
+  --location "<azure-region>" \
+  --vm-size "<explicit-vm-sku>" \
+  --node-count 1 \
+  --enable-aks true \
+  --enable-jupyter false \
+  --admin-group-id "<entra-security-group-object-id>"
+```
+
+Only after a passing preflight and a newly reviewed exact plan:
 
 ```bash
 bash ./scripts/get-aks-credentials.sh
@@ -164,6 +178,8 @@ The JupyterHub lab uses dummy authentication and a `ClusterIP` service. It must 
 
 Test matrix: [`docs/validation/test-matrix.md`](docs/validation/test-matrix.md).
 
+Validated lifecycle record: [`docs/validation/2026-07-18-foundation-lifecycle.md`](docs/validation/2026-07-18-foundation-lifecycle.md).
+
 ## Teardown
 
 ```bash
@@ -179,21 +195,15 @@ AKS is opt-in and defaults to one system node on the Free management tier, but V
 
 ## Known limitations
 
-- No real Azure plan/apply evidence is included yet.
-- Provider lock files are not generated because Terraform/provider downloads were unavailable in the audit environment; generate and commit them during the private pilot.
-- The policies are simple portfolio controls, not an enterprise policy initiative.
-- Private AKS connectivity/DNS is not fully built by this personal-lab baseline.
-- AKS provisioning and Helm workloads are intentionally separate phases.
-- Historical data-platform services were excluded because they were costly, incomplete, or non-reproducible.
-- GitHub Actions are pinned to reviewed immutable commit SHAs; Dependabot should propose controlled updates.
+AKS was blocked in the assessed subscription/region by the configured SKU, unsuitable alternatives/quota, and the absence of an eligible Entra admin group. No fallback was selected. GitHub environments and OIDC credentials are absent, and the current organization plan does not enforce the desired branch-protection rule. See [`docs/known-limitations.md`](docs/known-limitations.md) for the complete, current boundaries.
 
 ## Roadmap
 
-1. Run CI in a private GitHub pilot.
-2. Execute foundation-only plan/apply/smoke-test/destroy.
-3. Add sanitized evidence.
-4. Enable AKS only after cost and quota review.
-5. Add Terraform tests after the empirical lab is stable.
+1. Publish the sanitized release branch through a reviewed pull request.
+2. Configure OIDC identities and protected environments when GitHub enforcement is available.
+3. Run a GitHub plan-only pilot.
+4. Resolve an explicit AKS region/SKU/quota/admin-group combination.
+5. Generate and review a new exact AKS plan before requesting deployment approval.
 
 ## Authorship and license
 
@@ -201,4 +211,4 @@ Project-owned Terraform, refactoring, automation, and documentation are MIT lice
 
 ## Publication
 
-Use the private-pilot sequence, repository metadata, protection rules, and exact Git commands in [`docs/github-publication.md`](docs/github-publication.md). Third-party ownership boundaries are recorded in [`docs/third-party-attribution.md`](docs/third-party-attribution.md).
+Use the publication sequence in [`docs/github-publication.md`](docs/github-publication.md) and the [OIDC](docs/github/oidc-setup.md), [environment](docs/github/environments.md), and [repository-setting](docs/github/repository-settings.md) guides. Third-party ownership boundaries are recorded in [`docs/third-party-attribution.md`](docs/third-party-attribution.md).

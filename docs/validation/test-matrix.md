@@ -17,3 +17,24 @@
 | E | JupyterHub | `bash ./scripts/deploy-jupyter.sh` | Helm healthy; local endpoint responds |
 | E | Logging | documented KQL | recent expected records |
 | F | Destroy | `make destroy-lab` | apply succeeds; no unexplained chargeable remnants |
+
+## Empirical status on 2026-07-18
+
+| Capability | Status | Evidence boundary |
+| --- | --- | --- |
+| Repository policy and sanitization | PASS | Local policy and secret-pattern checks |
+| Terraform formatting and provider validation | PASS | Both Terraform roots |
+| Foundation saved plan | PASS | `34 add / 0 change / 0 destroy`; hash retained |
+| Foundation exact-plan apply | PASS | `34 added / 0 changed / 0 destroyed` |
+| Foundation no-drift refresh | PASS | No changes |
+| Foundation smoke tests | PASS | Expected foundation inventory and tags |
+| Foundation saved destroy plan | PASS | `0 add / 0 change / 34 destroy`; hash retained |
+| Foundation exact destruction | PASS | `34 destroyed`; empty remote state |
+| Residual inventory and backend deletion | PASS | No matching landing-zone or backend resources |
+| Backend helper regression coverage | PASS | Fixture-only structured RBAC and Storage tests |
+| AKS provisioning | NOT RUN | SKU/quota/admin-group blockers; no plan generated |
+| Entra-integrated AKS administration | NOT RUN | No cluster or eligible configured group |
+| JupyterHub installation/smoke test | NOT RUN | AKS prerequisite absent |
+| GitHub OIDC | NOT RUN | Federated credentials absent |
+| GitHub Environment approvals | NOT RUN | Environments absent |
+| GitHub deployment lifecycle | NOT RUN | Workflows prepared but not empirically exercised |

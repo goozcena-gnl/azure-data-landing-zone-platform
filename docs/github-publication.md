@@ -1,5 +1,18 @@
 # GitHub publication procedure
 
+## Prepared release state
+
+Local finalization uses branch `release/foundation-lifecycle-validation`.
+No push, pull request, repository setting, branch-protection rule, environment,
+Actions variable, secret, or OIDC credential is created by the preparation
+task.
+
+Before publication, build the archive from a clean committed `HEAD`:
+
+```bash
+OUTPUT_DIR="<absolute-output-directory-outside-repository>" make package-release
+```
+
 Do not publish until every credential found in the original archive has been
 revoked or rotated and the private pilot CI is green.
 
@@ -51,11 +64,18 @@ gh pr create --draft \
 - require the `Validate` and dependency-review checks when available;
 - require conversation resolution;
 - block force pushes and branch deletion;
+
 - restrict environment deployment branches to `main`;
 - require reviewers for `azure-lab-apply` and `azure-lab-destroy`;
 - retain plan artifacts for one day only;
 - enable private vulnerability reporting and secret scanning where available;
 - configure Dependabot for GitHub Actions and Python dependencies.
+
+The current organization plan was assessed as unable to enforce the desired
+branch-protection rule. Do not describe protection as active or create an
+unenforced rule for appearance. Follow
+[`github/repository-settings.md`](github/repository-settings.md) and reassess
+enforcement before relying on the target baseline.
 
 Dependency review on a private repository can require GitHub Advanced Security,
 depending on the account and repository plan. Treat an unavailable check as a
