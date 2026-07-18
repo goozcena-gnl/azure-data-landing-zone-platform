@@ -11,6 +11,7 @@ owner_tag   = "portfolio"
 enable_governance = true
 enable_key_vault  = false
 enable_aks        = false
+enable_jupyter    = false
 
 # Enable AKS only after checking quota, SKU availability, and current pricing.
 aks_private_cluster_enabled = false

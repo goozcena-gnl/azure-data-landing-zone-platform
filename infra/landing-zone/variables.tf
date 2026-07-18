@@ -46,6 +46,11 @@ variable "location" {
   description = "Azure deployment region."
   type        = string
   default     = "francecentral"
+
+  validation {
+    condition     = can(regex("^[a-z0-9]+$", var.location)) && length(trimspace(var.location)) > 0
+    error_message = "location must be a non-empty canonical Azure region name such as francecentral."
+  }
 }
 
 variable "address_space" {
@@ -98,6 +103,17 @@ variable "enable_aks" {
   default     = false
 }
 
+variable "enable_jupyter" {
+  description = "Declare intent to install JupyterHub after AKS provisioning. Terraform does not install the Helm release."
+  type        = bool
+  default     = false
+
+  validation {
+    condition     = !var.enable_jupyter || var.enable_aks
+    error_message = "enable_jupyter cannot be true unless enable_aks is also true."
+  }
+}
+
 variable "aks_private_cluster_enabled" {
   description = "Use a private AKS API server."
   type        = bool
@@ -114,6 +130,19 @@ variable "aks_admin_group_object_ids" {
   description = "Microsoft Entra group object IDs granted cluster administration. Use groups, not individual users."
   type        = list(string)
   default     = []
+
+  validation {
+    condition = alltrue([
+      for id in var.aks_admin_group_object_ids :
+      can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", id))
+    ])
+    error_message = "Every aks_admin_group_object_ids entry must be a non-empty UUID."
+  }
+
+  validation {
+    condition     = !var.enable_aks || length(var.aks_admin_group_object_ids) > 0
+    error_message = "At least one Microsoft Entra security-group object ID is required when enable_aks is true."
+  }
 }
 
 variable "aks_kubernetes_version" {
@@ -127,12 +156,22 @@ variable "aks_node_vm_size" {
   description = "AKS system node VM size. Confirm availability and quota in the selected region."
   type        = string
   default     = "Standard_D2s_v5"
+
+  validation {
+    condition     = can(regex("^Standard_[A-Za-z0-9_]+$", var.aks_node_vm_size)) && length(trimspace(var.aks_node_vm_size)) > 0
+    error_message = "aks_node_vm_size must be a non-empty Azure Standard VM SKU name."
+  }
 }
 
 variable "aks_node_count" {
   description = "AKS system node count."
   type        = number
   default     = 1
+
+  validation {
+    condition     = floor(var.aks_node_count) == var.aks_node_count && var.aks_node_count >= 1 && var.aks_node_count <= 3
+    error_message = "aks_node_count must be a whole number from 1 through 3 for this laboratory."
+  }
 }
 
 variable "enable_aks_monitoring" {
