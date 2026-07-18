@@ -59,11 +59,11 @@ Known limitations are in
 The backend defects are fixed and covered by both executable standalone tests
 and the existing Bats framework. Terraform's provider-mocked tests prove that
 invalid Jupyter/AKS, group-ID, node-count, VM-size, and location combinations
+fail before an Azure plan.
 
 The final package is generated only from committed `HEAD`. Its external
 `file-manifest.csv` records path, size, content SHA-256, and publication
 category; `SHA256SUMS` verifies both the ZIP and manifest.
-fail before an Azure plan.
 
 The read-only AKS preflight did not deploy anything. It confirmed that the
 configured VM family quota could cover the requested two vCPUs, but the
