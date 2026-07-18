@@ -47,6 +47,9 @@ jobs:
       - name: Documentation links
         run: python3 scripts/check-doc-links.py
 
+      - name: Backend helper regression tests
+        run: bash terraform_backend_setup/tests/regression.sh
+
   terraform:
     runs-on: ubuntu-latest
     steps:
@@ -64,7 +67,11 @@ jobs:
           unzip -q "${archive}"
           sudo install -m 0755 terraform /usr/local/bin/terraform
           rm -f "${archive}" terraform
+
           terraform version
+
+      - name: Provider-mocked Terraform input tests
+        run: make terraform-test
 
       - name: Terraform format
         run: terraform fmt -check -recursive

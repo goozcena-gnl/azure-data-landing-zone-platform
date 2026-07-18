@@ -38,6 +38,9 @@ jobs:
       TF_VAR_location: ${{ vars.TF_VAR_LOCATION }}
       TF_VAR_owner_tag: ${{ vars.TF_VAR_OWNER_TAG }}
       TF_VAR_enable_aks: ${{ vars.TF_VAR_ENABLE_AKS }}
+      TF_VAR_enable_jupyter: ${{ vars.TF_VAR_ENABLE_JUPYTER }}
+      TF_VAR_aks_node_vm_size: ${{ vars.TF_VAR_AKS_NODE_VM_SIZE }}
+      TF_VAR_aks_node_count: ${{ vars.TF_VAR_AKS_NODE_COUNT }}
       TF_VAR_aks_authorized_ip_ranges: ${{ vars.TF_VAR_AKS_AUTHORIZED_IP_RANGES }}
       TF_VAR_aks_admin_group_object_ids: ${{ vars.TF_VAR_AKS_ADMIN_GROUP_OBJECT_IDS }}
     steps:
@@ -70,7 +73,7 @@ jobs:
             -backend-config="resource_group_name=${{ vars.TF_STATE_RESOURCE_GROUP }}" \
             -backend-config="storage_account_name=${{ vars.TF_STATE_STORAGE_ACCOUNT }}" \
             -backend-config="container_name=${{ vars.TF_STATE_CONTAINER }}" \
-            -backend-config="key=landing-zone/lab.tfstate" \
+            -backend-config="key=${{ vars.TF_STATE_KEY }}" \
             -backend-config="use_azuread_auth=true"
           terraform plan -destroy \
             -input=false \
