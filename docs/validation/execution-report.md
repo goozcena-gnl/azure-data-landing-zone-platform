@@ -1,5 +1,81 @@
 # Validation execution report
 
+## Current release validation
+
+- Date: 2026-07-18
+- Environment: local WSL/Linux repository plus approved read-only Azure
+  preflight
+- Terraform: 1.15.8
+- Azure CLI: 2.88.0
+- Python: 3.12.3
+- Bash: 5.2.21
+- jq: 1.7
+- TFLint: 0.63.1; bundled Terraform rules 0.15.0; AzureRM rules 0.28.0
+- Checkov: 3.3.8
+- ShellCheck: 0.11.0
+- Yamllint: 1.37.1
+- Markdownlint CLI: 0.49.0
+- Bats Core: 1.12.0
+- Git: 2.43.0
+
+### Results
+
+| Test | Command | Status | Evidence | Limitation |
+| --- | --- | --- | --- | --- |
+| Repository policy | `python3 tests/repository_policy.py` | PASS | no forbidden files, binaries, nested Git metadata, or mutable Action refs | Static policy |
+| Secret-pattern scan | `python3 scripts/secret-scan.py --root .` | PASS | zero findings | Heuristic; not a substitute for history review |
+| Terraform format | `terraform fmt -check -recursive` | PASS | exit 0 after mechanical format | HCL style only |
+| Terraform init/validate | `make validate` | PASS | bootstrap and landing-zone initialized backend-free; both valid | Cached locked providers |
+| Terraform input tests | `make terraform-test` | PASS | 8 provider-mocked plans passed | No Azure API call |
+| TFLint | `tflint --recursive` | PASS | zero findings | Static rules |
+| Checkov | `make security` with 3.3.8 | PASS | 44 passed, 0 failed | Documented lab exceptions remain |
+| ShellCheck | `shellcheck -x` over retained shell scripts | PASS | zero findings | Static shell analysis |
+| Yamllint | `yamllint -c .yamllint.yml` | PASS | all workflow/config YAML passed | Service semantics assessed separately |
+| Markdownlint | `markdownlint-cli` 0.49.0 over exact repository Markdown list | PASS | zero findings | Local files only |
+| Backend standalone regressions | `make backend-test` | PASS | 24 passed, 0 failed | Fixture-only Azure CLI |
+| Backend Bats suite | `bats terraform_backend_setup/tests/terraform_setup.bats` | PASS | 6 passed, 0 failed | Azure CLI mocked |
+| Documentation links | `make docs-check` | PASS | no broken local targets | External links not crawled |
+| Make command surface | `make help` | PASS | all documented targets resolve | Help only |
+| Git whitespace | `git diff --check` | PASS | no whitespace errors | Uncommitted review surface |
+| Foundation plan/apply | sanitized lifecycle record | PASS | exact 34-resource plan and apply | Foundation only |
+| Foundation no drift/smoke | sanitized lifecycle record | PASS | no changes; expected inventory | Foundation only |
+| Foundation destroy/cleanup | sanitized lifecycle record | PASS | 34 destroyed; state/backend/residual inventory empty | Historical empirical run |
+| AKS read-only preflight | `scripts/aks-preflight.sh` | BLOCKED | providers/versions/quota pass; configured SKU restricted; admin group absent | No fallback selected |
+| AKS deployment | not run | NOT RUN | no saved AKS plan | Requires explicit approval after blockers |
+| JupyterHub deployment | not run | NOT RUN | AKS prerequisite absent | No endpoint test |
+| GitHub OIDC deployment | not run | NOT RUN | credentials and variables absent | Manual administration required |
+| GitHub Environment gates | not run | NOT RUN | environments absent | Current plan enforcement must be checked |
+| Branch protection | read-only assessment | NOT APPLICABLE | no setting changed; current organization plan would not enforce target rule | Reassess before relying on it |
+
+The full lifecycle evidence, including plan hashes and explicit exclusions, is
+in [`2026-07-18-foundation-lifecycle.md`](2026-07-18-foundation-lifecycle.md).
+Known limitations are in
+[`../known-limitations.md`](../known-limitations.md).
+
+### Interpretation
+
+The backend defects are fixed and covered by both executable standalone tests
+and the existing Bats framework. Terraform's provider-mocked tests prove that
+invalid Jupyter/AKS, group-ID, node-count, VM-size, and location combinations
+fail before an Azure plan.
+
+The read-only AKS preflight did not deploy anything. It confirmed that the
+configured VM family quota could cover the requested two vCPUs, but the
+selected `Standard_D2s_v5` SKU remained restricted for the subscription in
+France Central. No security-enabled Entra administrator group was configured.
+AKS therefore remains blocked and no alternate SKU or region was selected.
+
+A passing static or mocked test is not empirical AKS, Jupyter, GitHub OIDC, or
+GitHub Environment validation.
+
+---
+
+## Historical baseline (2026-07-14, superseded)
+
+The section below is retained as provenance for the pre-Azure, pre-finalization
+baseline. Its release-readiness conclusions are superseded by the current
+report above.
+
 - Date: 2026-07-14 UTC
 - Environment: isolated Linux build container; no Azure credentials
 - Subject: sanitized `azure-data-landing-zone-platform` working copy
