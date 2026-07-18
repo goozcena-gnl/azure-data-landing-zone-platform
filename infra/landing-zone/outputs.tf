@@ -31,4 +31,9 @@ output "aks_resource_group_name" {
 output "aks_oidc_issuer_url" {
   description = "AKS workload-identity issuer URL when enabled."
   value       = try(module.aks[0].oidc_issuer_url, null)
+
+}
+output "jupyter_installation_enabled" {
+  description = "Post-AKS JupyterHub installation intent. JupyterHub is deployed separately with Helm."
+  value       = var.enable_jupyter
 }
