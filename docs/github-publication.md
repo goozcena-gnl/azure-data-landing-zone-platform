@@ -3,18 +3,21 @@
 ## Current gate
 
 The release work continues on `release/foundation-lifecycle-validation` through
-draft pull request #5. Do not merge it, mark it ready, change visibility, create
-rulesets or environments, or publish a release without explicit authorization.
+draft pull request #5 in the clean public repository. The historical repository
+remains private. Do not merge the pull request, mark it ready, create rulesets
+or environments, or publish a release without explicit authorization.
 
-Before public visibility:
+The publication gate has completed:
 
-1. resolve all actionable validation failures on the pull-request head;
-2. keep dependency review enabled and record any private-plan limitation;
-3. review the full reachable Git history, workflow logs, artifacts, and PR text;
-4. resolve or explicitly accept publication of personal commit metadata;
-5. obtain authorization for the visibility change;
-6. rerun dependency review, secret scanning, and the complete validation suite
-   after the repository is public.
+1. the clean repository is public and the historical repository is private;
+2. commit metadata uses approved GitHub no-reply identities;
+3. all branches, reachable history, pull-request text, available workflow logs,
+   artifacts, and protected historical SHAs passed the post-publication audit;
+4. Dependency Review passed after public visibility;
+5. repository and Terraform validation passed on the pull-request head.
+
+The remaining release gates are an explicitly authorized `main` ruleset, pull
+request review and merge, and separately authorized tag and release creation.
 
 Use the concise reviewed release summary as the PR body. Do not use the complete
 execution report as the PR description.
@@ -34,14 +37,13 @@ exclusions.
 
 ## Protection baseline
 
-After public visibility and successful post-publication checks, use the
-prepared [`main` ruleset](github/main-ruleset.json) and the review procedure in
+The post-publication checks passed. Use the prepared
+[`main` ruleset](github/main-ruleset.json) and the review procedure in
 [`GitHub repository settings`](github/repository-settings.md). The ruleset is
-not active until an administrator explicitly submits it.
+not active until an administrator explicitly authorizes and submits it.
 
-Dependency review is intentionally retained. An unavailable check on the
-current private plan is a platform limitation, not a passed security control.
-It must run successfully after public visibility before the ruleset is applied.
+Dependency Review is intentionally retained and passed on the public pull
+request. Its observed `review` job context is part of the prepared ruleset.
 
 ## Post-merge release procedure
 

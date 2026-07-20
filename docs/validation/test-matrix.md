@@ -10,6 +10,7 @@
 | B | TFLint | `tflint --init && tflint --recursive` | no blocking findings |
 | B | Checkov | `make security` | no unaccepted failure |
 | B | Shell/YAML/Markdown | `make lint && make docs-check` | exit 0 |
+| B | Dependency Review | GitHub Actions `review` job | public dependency diff passes |
 | C | Azure plan | `make plan-lab` | reviewed plan; no unexpected changes |
 | D | Foundation apply | `make deploy-lab` | Terraform/Azure success |
 | D | Optional AKS | reviewed plan/apply | expected identity/network/security settings |
@@ -23,6 +24,8 @@
 | Capability | Status | Evidence boundary |
 | --- | --- | --- |
 | Repository policy and sanitization | PASS | Local policy and secret-pattern checks |
+| Public history and publication surface | PASS | Six branches, 17 reachable commits, PRs #1–#5, and available Actions logs |
+| Dependency Review | PASS | Public pull-request rerun, attempt 2 |
 | Terraform formatting and provider validation | PASS | Both Terraform roots |
 | Foundation saved plan | PASS | `34 add / 0 change / 0 destroy`; hash retained |
 | Foundation exact-plan apply | PASS | `34 added / 0 changed / 0 destroyed` |

@@ -6,11 +6,10 @@ No repository setting, branch-protection rule, ruleset, environment, Actions
 variable, secret, or OIDC credential was created or modified during
 finalization.
 
-The repository-rulesets API returned HTTP 403 while the repository was private:
-the feature requires an organization-plan upgrade or public visibility. No
-unenforced rule was created. GitHub documents repository rulesets as available
-to public repositories on GitHub Free, so reassess immediately after an
-authorized visibility change.
+The clean repository is public. The repository-rulesets API is available and
+returned no configured rulesets. The historical repository remains private.
+The payload below was validated against the successful public pull-request
+checks, but no rule was created or activated.
 
 ## Prepared main ruleset
 
@@ -40,8 +39,9 @@ If a second trusted reviewer becomes available, increase
 `required_approving_review_count` from `0` to `1`; do not enable
 `require_last_push_approval` for a sole maintainer.
 
-Do not apply the ruleset until a repository administrator confirms public
-visibility, successful required checks, and ruleset enforcement availability.
+Do not apply the ruleset until a repository administrator explicitly
+authorizes the mutation after confirming successful checks on the final pull
+request head.
 
 ## Read-only assessment commands
 
@@ -93,8 +93,8 @@ network egress, and no access to unrelated repositories.
 
 ## Apply only after authorization
 
-After the repository is public, all three checks have reported on the current
-default-branch commit, and the maintainer explicitly authorizes the mutation:
+After all three checks have reported on the final pull-request head and the
+maintainer explicitly authorizes the mutation:
 
 ```bash
 gh api \
@@ -112,7 +112,7 @@ authorization.
 
 ## Publication settings
 
-Before making the repository public, confirm the clean release archive,
-sanitized lifecycle evidence, third-party attribution, license, security
-contact, default branch, topics, and README status statement. Public visibility
-does not imply AKS, Jupyter, OIDC, or GitHub deployment validation.
+The repository is public, but public visibility does not imply AKS, Jupyter,
+OIDC, or GitHub deployment validation. Before release, confirm the clean release
+archive, sanitized lifecycle evidence, third-party attribution, license,
+security contact, default branch, topics, and README status statement.

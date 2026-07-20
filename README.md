@@ -195,11 +195,11 @@ AKS is opt-in and defaults to one system node on the Free management tier, but V
 
 ## Known limitations
 
-AKS was blocked in the assessed subscription/region by the configured SKU, unsuitable alternatives/quota, and the absence of an eligible Entra admin group. No fallback was selected. GitHub environments and OIDC credentials are absent, and the current organization plan does not enforce the desired branch-protection rule. See [`docs/known-limitations.md`](docs/known-limitations.md) for the complete, current boundaries.
+AKS was blocked in the assessed subscription/region by the configured SKU, unsuitable alternatives/quota, and the absence of an eligible Entra admin group. No fallback was selected. GitHub environments and OIDC credentials are absent, and the prepared `main` ruleset has not been applied. See [`docs/known-limitations.md`](docs/known-limitations.md) for the complete, current boundaries.
 
 ## Roadmap
 
-1. Publish the sanitized release branch through a reviewed pull request.
+1. Complete review of the sanitized public release through pull request #5.
 2. Configure OIDC identities and protected environments when GitHub enforcement is available.
 3. Run a GitHub plan-only pilot.
 4. Resolve an explicit AKS region/SKU/quota/admin-group combination.
