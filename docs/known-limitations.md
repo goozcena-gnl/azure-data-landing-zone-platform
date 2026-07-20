@@ -49,17 +49,27 @@ The workflows are prepared for OIDC and protected environments, but the
 repository currently has no configured OIDC federated credentials, deployment
 environments, Actions variables, or empirically tested GitHub deployment run.
 
-The public repository supports ruleset assessment, and a `main` ruleset has
-been prepared from the observed successful check contexts. No rule has been
-created or activated. Do not rely on branch protection as a security boundary
-until the ruleset is explicitly authorized, applied, and verified.
+The `Protect main` ruleset is active on `main` with no bypass actors. It
+requires pull requests, current successful `repository`, `terraform`, and
+`review` checks from the GitHub Actions integration, linear history, and
+conversation resolution. It blocks non-fast-forward updates and deletion of
+`main`. The sole-maintainer baseline requires zero approving reviews.
+
+This baseline does not provide independent mandatory human approval. A future
+second trusted maintainer should trigger a reviewed increase to one required
+approval. Required checks also make merge availability dependent on GitHub
+Actions and can block merges during service or runner outages; the ruleset must
+not be weakened as an outage workaround.
 
 GitHub secret scanning for user alerts, push protection, and private
 vulnerability reporting are enabled. Dependabot alerts and security updates
 remain enabled. Advanced validity, metadata, non-provider, and custom pattern
 features require organization and/or paid Secret Protection capabilities and
-are not active. CodeQL is also not configured. Alert counts are point-in-time
+are not active. CodeQL remains deferred. Alert counts are point-in-time
 service observations and do not replace credential rotation or history review.
+
+GitHub OIDC deployment has not been empirically validated. AKS and JupyterHub
+remain undeployed, and the project is not production-ready.
 
 Deployment uses a dedicated self-hosted runner label. Operating, patching,
 isolating, and reimaging that runner remain operator responsibilities.

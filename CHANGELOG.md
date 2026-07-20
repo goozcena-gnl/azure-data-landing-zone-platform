@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+No changes are currently documented outside the prepared v0.1.0 scope.
+
+## [0.1.0] - prepared for release
+
+This section records the release candidate scope. The v0.1.0 artifacts, tag,
+and GitHub Release have not yet been created or published.
+
 ### Added
 
 - Sanitized evidence for the empirically validated 34-resource foundation plan/apply/no-drift/smoke/destroy/backend-cleanup lifecycle.
@@ -32,7 +39,13 @@
 - Added Terraform validation for region, VM SKU, node-count limits, Entra group UUIDs, AKS admin-group presence, and Jupyter's dependency on AKS.
 - Added same-commit verification to the one-day reviewed-plan artifact and exposed the state key as a protected environment variable.
 - Updated status language to claim only the empirically validated foundation lifecycle; AKS, Jupyter, OIDC, and GitHub deployment remain unvalidated.
-- Prepared a public-repository `main` ruleset with the three observed GitHub Actions contexts; the ruleset remains unapplied pending explicit authorization.
+- Activated and API-verified the `Protect main` ruleset with the `repository`,
+  `terraform`, and `review` GitHub Actions contexts, strict branch currency,
+  linear history, conversation resolution, deletion protection, and
+  non-fast-forward protection.
+- Rebase-merged pull request #5 after its reviewed head, required checks,
+  conversation state, and active ruleset were verified; the release branch was
+  then deleted.
 - Reframed the project as a disposable portfolio lab rather than an unqualified production platform.
 - Replaced storage keys and reusable CI secrets with Azure RBAC and OIDC.
 - Separated AKS provisioning from Kubernetes/Helm workload installation.
@@ -46,3 +59,11 @@
 - Nested Git metadata and complete copies of Jupyter Docker Stacks, Inframap, and Azure Naming Tool.
 - Incomplete/costly Databricks, Synapse, SQL, ingestion, storage, and VM prototypes from the active root.
 - Raw scanner output and unredacted screenshots.
+
+### Explicit exclusions
+
+- AKS and JupyterHub were not deployed.
+- GitHub-to-Azure OIDC and GitHub-controlled Azure deployment were not
+  empirically validated.
+- The project is a disposable professional laboratory, not a production
+  reference implementation.

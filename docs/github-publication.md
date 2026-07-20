@@ -1,26 +1,48 @@
 # GitHub publication and release procedure
 
-## Current gate
+## Current v0.1.0 gate
 
-The release work continues on `release/foundation-lifecycle-validation` through
-draft pull request #5 in the clean public repository. The historical repository
-remains private. Do not merge the pull request, mark it ready, create rulesets
-or environments, or publish a release without explicit authorization.
+Pull request #5 was rebase-merged into `main` at
+`f357c7db3652c0d645eff575153511186912209c`. The reviewed release branch was
+deleted after the merge.
 
-The publication gate has completed:
+The clean replacement repository is public, while the historical repository
+remains private. Secret scanning user alerts, push protection, private
+vulnerability reporting, and the active `Protect main` ruleset are enabled.
 
-1. the clean repository is public and the historical repository is private;
-2. commit metadata uses approved GitHub no-reply identities;
-3. all branches, reachable history, pull-request text, available workflow logs,
-   artifacts, and protected historical SHAs passed the post-publication audit;
-4. Dependency Review passed after public visibility;
-5. repository and Terraform validation passed on the pull-request head.
+No v0.1.0 artifact, tag, or GitHub Release exists yet. Release preparation is
+blocked until the focused documentation-correction pull request is merged and
+the complete post-merge validation and reproducibility gate passes on the new
+exact `main` commit.
 
-The remaining release gates are an explicitly authorized `main` ruleset, pull
-request review and merge, and separately authorized tag and release creation.
+## Completed v0.1.0 gates
 
-Use the concise reviewed release summary as the PR body. Do not use the complete
-execution report as the PR description.
+1. The clean replacement repository was created and made public.
+2. The historical repository remained private and isolated.
+3. Publication, history, pull-request, Actions-log, artifact, and protected-SHA
+   audits passed.
+4. Repository security protections were enabled and verified.
+5. The `Protect main` ruleset was activated with no bypass actors and the
+   required `repository`, `terraform`, and `review` checks.
+6. Dependency Review passed after public visibility.
+7. Pull request #5 passed its required checks, was rebase-merged, and its
+   release branch was deleted.
+
+## Remaining v0.1.0 gates
+
+1. Merge the focused documentation-correction pull request.
+2. Rerun complete validation on the new exact `main` commit.
+3. Generate and independently reproduce the tracked-file-only release package.
+4. Create and locally verify an annotated v0.1.0 tag.
+5. Push the verified tag.
+6. Publish the GitHub Release and its three assets.
+7. Download the published assets and verify their checksums and ZIP contents.
+
+Each mutation remains a separate authorization gate. Artifact generation does
+not authorize tagging, tag publication, or GitHub Release publication.
+
+Use the concise reviewed release summary as a pull-request body. Do not use the
+complete execution report as a pull-request description.
 
 ## Recommended public metadata
 
@@ -37,18 +59,22 @@ exclusions.
 
 ## Protection baseline
 
-The post-publication checks passed. Use the prepared
-[`main` ruleset](github/main-ruleset.json) and the review procedure in
-[`GitHub repository settings`](github/repository-settings.md). The ruleset is
-not active until an administrator explicitly authorizes and submits it.
+The active [`Protect main` ruleset](github/main-ruleset.json) and the review
+procedure in
+[`GitHub repository settings`](github/repository-settings.md) protect only
+`main`. The ruleset has no bypass actors and requires current successful
+`repository`, `terraform`, and `review` checks, pull requests, linear history,
+and conversation resolution. It blocks non-fast-forward updates and deletion.
 
-Dependency Review is intentionally retained and passed on the public pull
-request. Its observed `review` job context is part of the prepared ruleset.
+Dependency Review is intentionally retained. Its `review` job context is one
+of the three required GitHub Actions checks. The sole-maintainer baseline
+requires zero approving reviews; it does not claim independent human approval.
 
-## Post-merge release procedure
+## Reusable post-merge release procedure
 
-Do not reuse a pre-merge archive. After PR #5 is merged and release creation is
-explicitly authorized, update `main` and prove it matches the remote:
+Do not reuse a pre-merge archive. After the documentation-correction pull
+request is merged and artifact generation is explicitly authorized, update
+`main` and prove it matches the remote:
 
 ```bash
 git switch main
@@ -102,8 +128,8 @@ The extracted archive has no `.git` directory, so the final `git diff --check`
 is not applicable there. Run it in the clean source checkout immediately before
 packaging, and record `NOT APPLICABLE` for that extracted-copy step.
 
-Return to the source checkout, confirm the final main SHA, then create the
-annotated tag and release only after separate authorization:
+Return to the source checkout and confirm the exact final `main` SHA. Only
+after separate tag, tag-push, and release-publication authorizations, use:
 
 ```bash
 cd "<absolute-source-repository-directory>"
