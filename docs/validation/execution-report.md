@@ -2,7 +2,7 @@
 
 ## Current release validation
 
-- Date: 2026-07-18
+- Date: 2026-07-20
 - Environment: local WSL/Linux repository plus approved read-only Azure
   preflight
 - Terraform: 1.15.8
@@ -17,6 +17,7 @@
 - Markdownlint CLI: 0.49.0
 - Bats Core: 1.12.0
 - Git: 2.43.0
+- Gitleaks: 8.30.1
 
 ### Results
 
@@ -37,6 +38,8 @@
 | Documentation links | `make docs-check` | PASS | no broken local targets | External links not crawled |
 | Make command surface | `make help` | PASS | all documented targets resolve | Help only |
 | Git whitespace | `git diff --check` | PASS | no whitespace errors | Uncommitted review surface |
+| Public history and surface audit | Gitleaks plus deterministic publication checks | PASS | six branches, 17 reachable commits, PRs #1–#5, and 13 available Actions logs clean | One startup-failure run had no downloadable log |
+| Dependency Review | public pull-request rerun | PASS | `review` attempt 2 completed successfully | Dependency diff only |
 | Foundation plan/apply | sanitized lifecycle record | PASS | exact 34-resource plan and apply | Foundation only |
 | Foundation no drift/smoke | sanitized lifecycle record | PASS | no changes; expected inventory | Foundation only |
 | Foundation destroy/cleanup | sanitized lifecycle record | PASS | 34 destroyed; state/backend/residual inventory empty | Historical empirical run |
@@ -47,7 +50,7 @@
 | GitHub Environment gates | not run | NOT RUN | environments absent | Current plan enforcement must be checked |
 | Fresh tracked-file archive | `make package-release` | PASS | ZIP, CSV manifest, and SHA-256 checksums generated; clean extraction reran static checks | Output stored outside repository |
 | Extracted archive Bats/Markdown | Bats 1.12.0 and Markdownlint 0.49.0 | PASS | 6 Bats tests and all Markdown files passed in extracted copy | No live Azure call |
-| Branch protection | read-only assessment | NOT APPLICABLE | no setting changed; current organization plan would not enforce target rule | Reassess before relying on it |
+| Main ruleset | read-only assessment | NOT APPLICABLE | public API available; validated proposal prepared but not applied | Requires explicit authorization |
 
 The full lifecycle evidence, including plan hashes and explicit exclusions, is
 in [`2026-07-18-foundation-lifecycle.md`](2026-07-18-foundation-lifecycle.md).

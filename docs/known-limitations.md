@@ -49,10 +49,10 @@ The workflows are prepared for OIDC and protected environments, but the
 repository currently has no configured OIDC federated credentials, deployment
 environments, Actions variables, or empirically tested GitHub deployment run.
 
-The prior repository assessment found that branch-protection enforcement would
-not be available under the current organization plan. No rule was created or
-modified. Reassess plan and repository visibility before relying on branch
-protection as a security boundary.
+The public repository supports ruleset assessment, and a `main` ruleset has
+been prepared from the observed successful check contexts. No rule has been
+created or activated. Do not rely on branch protection as a security boundary
+until the ruleset is explicitly authorized, applied, and verified.
 
 Deployment uses a dedicated self-hosted runner label. Operating, patching,
 isolating, and reimaging that runner remain operator responsibilities.
