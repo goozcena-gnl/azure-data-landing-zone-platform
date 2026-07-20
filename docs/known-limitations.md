@@ -54,6 +54,13 @@ been prepared from the observed successful check contexts. No rule has been
 created or activated. Do not rely on branch protection as a security boundary
 until the ruleset is explicitly authorized, applied, and verified.
 
+GitHub secret scanning for user alerts, push protection, and private
+vulnerability reporting are enabled. Dependabot alerts and security updates
+remain enabled. Advanced validity, metadata, non-provider, and custom pattern
+features require organization and/or paid Secret Protection capabilities and
+are not active. CodeQL is also not configured. Alert counts are point-in-time
+service observations and do not replace credential rotation or history review.
+
 Deployment uses a dedicated self-hosted runner label. Operating, patching,
 isolating, and reimaging that runner remain operator responsibilities.
 

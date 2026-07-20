@@ -20,6 +20,12 @@
 
 ### Changed
 
+- Enabled and API-verified public-repository secret-scanning user alerts, push
+  protection, and private vulnerability reporting; recorded zero secret and
+  Dependabot alerts at verification time.
+- Documented that advanced validity, metadata, non-provider, and custom secret
+  patterns remain unavailable without organization and/or paid Secret
+  Protection entitlement, while CodeQL remains deferred.
 - Replaced Azure CLI 2.88-incompatible scoped RBAC listing with object-ID, role, and scope-aware structured filtering that intentionally includes inherited assignments.
 - Recorded the successful post-publication Dependency Review rerun and the clean public/private repository boundary.
 - Replaced multiline Storage TSV parsing with fail-closed `jq` normalization that preserves `false` and `null` and distinguishes CLI or schema errors.

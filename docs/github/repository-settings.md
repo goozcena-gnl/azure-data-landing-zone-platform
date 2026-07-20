@@ -2,14 +2,23 @@
 
 ## Current assessment
 
-No repository setting, branch-protection rule, ruleset, environment, Actions
-variable, secret, or OIDC credential was created or modified during
-finalization.
+On 2026-07-20, API-verified public-repository hardening enabled GitHub secret
+scanning for user alerts, push protection, and private vulnerability reporting.
+Dependabot alerts and security updates remain enabled. The follow-up alert
+inventory found zero secret-scanning alerts and zero Dependabot alerts at that
+point in time.
 
 The clean repository is public. The repository-rulesets API is available and
 returned no configured rulesets. The historical repository remains private.
 The payload below was validated against the successful public pull-request
 checks, but no rule was created or activated.
+
+Automatic partner scanning of public repositories is separate from repository
+user alerts and push protection. Validity checks, extended metadata checks,
+non-provider patterns, and custom patterns were not enabled: those advanced
+capabilities require an organization and/or paid GitHub Secret Protection
+entitlement that this user-owned repository does not have. CodeQL remains
+deferred and was not enabled.
 
 ## Prepared main ruleset
 
@@ -70,19 +79,24 @@ result.
 
 ## Actions policy
 
-Recommended settings:
+Effective and recommended settings:
 
 - allow only required actions and reusable workflows;
 - require immutable full commit SHA references;
 - use read-only default workflow permissions;
 - do not allow Actions to approve pull requests;
 - keep fork pull-request workflow tokens read-only;
-- enable Dependabot alerts and updates;
-- enable secret scanning and push protection when the plan supports them;
-- enable private vulnerability reporting for public release.
+- keep Dependabot alerts and security updates enabled;
+- keep secret scanning user alerts and push protection enabled;
+- keep private vulnerability reporting enabled;
+- do not represent automatic partner scanning as equivalent to user alerts;
+- defer CodeQL and paid or organization-only secret protections until separately
+  authorized and entitled.
 
 The repository policy test rejects mutable GitHub Action references. Workflow
-permissions are declared explicitly.
+permissions are declared explicitly. Secret scanning complements, but does not
+replace, credential revocation, history review, or deterministic repository
+scanning.
 
 ## Self-hosted runner
 
