@@ -48,6 +48,20 @@ Dependency Review was rerun after public visibility. Attempt 2 of the original
 pull-request run completed successfully for the `review` job on the release
 head. Repository and Terraform validation were also successful.
 
+On 2026-07-20, GitHub secret scanning for repository user alerts, push
+protection, and private vulnerability reporting were enabled and verified by
+API read-back. Dependabot alerts and security updates remained enabled. The
+post-change API inventory returned zero secret-scanning alerts and zero
+Dependabot alerts. These counts are a point-in-time observation, not a
+guarantee that future commits or dependency updates will remain alert-free.
+
+Automatic partner scanning of public repositories is distinct from user alerts
+and push protection. Advanced validity, metadata, non-provider, and custom
+pattern features were not enabled because they require an organization and/or
+paid Secret Protection entitlement. CodeQL remains deferred. GitHub's scan
+history endpoint was unavailable without Advanced Security, while the standard
+secret-alert endpoint was active and returned successfully.
+
 ## Original source archive
 
 The original inspected archive contained 2,051 regular files and approximately

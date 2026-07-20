@@ -50,6 +50,9 @@
 | GitHub Environment gates | not run | NOT RUN | environments absent | Current plan enforcement must be checked |
 | Fresh tracked-file archive | `make package-release` | PASS | ZIP, CSV manifest, and SHA-256 checksums generated; clean extraction reran static checks | Output stored outside repository |
 | Extracted archive Bats/Markdown | Bats 1.12.0 and Markdownlint 0.49.0 | PASS | 6 Bats tests and all Markdown files passed in extracted copy | No live Azure call |
+| Public security settings | GitHub REST API read-back | PASS | secret scanning user alerts, push protection, and private vulnerability reporting enabled; Dependabot unchanged and enabled | Advanced paid or organization-only protections excluded |
+| Public security alerts | GitHub REST API sanitized inventory | PASS | zero secret-scanning and zero Dependabot alerts on 2026-07-20 | Point-in-time observation; scan-history API requires Advanced Security |
+| Code scanning | read-only capability assessment | NOT APPLICABLE | CodeQL default setup is not configured | CodeQL deliberately deferred |
 | Main ruleset | read-only assessment | NOT APPLICABLE | public API available; validated proposal prepared but not applied | Requires explicit authorization |
 
 The full lifecycle evidence, including plan hashes and explicit exclusions, is
@@ -76,6 +79,13 @@ AKS therefore remains blocked and no alternate SKU or region was selected.
 
 A passing static or mocked test is not empirical AKS, Jupyter, GitHub OIDC, or
 GitHub Environment validation.
+
+GitHub-native secret scanning and push protection now complement the
+repository's deterministic scans and history audit. They do not replace
+credential revocation or rotation when exposure is suspected. Advanced
+validity, metadata, non-provider, and custom pattern features were unavailable
+to the current user-owned repository without organization and/or paid Secret
+Protection entitlement.
 
 ---
 
