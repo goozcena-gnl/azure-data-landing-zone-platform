@@ -2,7 +2,19 @@
 
 A portfolio-oriented Azure landing-zone lab demonstrating modular Terraform, governance, networking, observability, AKS, workload identity, secure state management, and reviewed CI/CD without presenting an unverified lab as production-ready.
 
-> **Status:** the disposable Azure foundation lifecycle was empirically validated end to end: a reviewed `34 add / 0 change / 0 destroy` plan, exact-plan apply, no-drift refresh, smoke tests, reviewed `34 destroy` plan, exact destruction, residual checks, and separate backend deletion. AKS, JupyterHub, GitHub OIDC, and GitHub-controlled deployment remain unvalidated. See the [sanitized lifecycle evidence](docs/validation/2026-07-18-foundation-lifecycle.md).
+> **Status:** the clean replacement repository is public, while the historical
+> repository remains private. Pull request #5 was rebase-merged, and `main` is
+> protected by the active `Protect main` ruleset. Repository, Terraform, and
+> Dependency Review checks passed; secret scanning, push protection, and
+> private vulnerability reporting are enabled.
+>
+> The disposable Azure foundation lifecycle was empirically validated end to
+> end: a reviewed `34 add / 0 change / 0 destroy` plan, exact-plan apply,
+> no-drift refresh, smoke tests, reviewed `34 destroy` plan, exact destruction,
+> residual checks, and separate backend deletion. The v0.1.0 artifacts, tag,
+> and GitHub Release remain pending. AKS, JupyterHub, GitHub OIDC, and
+> GitHub-controlled deployment remain unvalidated. See the
+> [sanitized lifecycle evidence](docs/validation/2026-07-18-foundation-lifecycle.md).
 
 ## Project value
 
@@ -195,15 +207,21 @@ AKS is opt-in and defaults to one system node on the Free management tier, but V
 
 ## Known limitations
 
-AKS was blocked in the assessed subscription/region by the configured SKU, unsuitable alternatives/quota, and the absence of an eligible Entra admin group. No fallback was selected. GitHub environments and OIDC credentials are absent, and the prepared `main` ruleset has not been applied. See [`docs/known-limitations.md`](docs/known-limitations.md) for the complete, current boundaries.
+AKS was blocked in the assessed subscription/region by the configured SKU,
+unsuitable alternatives/quota, and the absence of an eligible Entra admin
+group. No fallback was selected. GitHub environments and OIDC credentials are
+absent. The active `Protect main` ruleset enforces checks and pull requests,
+but the sole-maintainer baseline requires zero approving reviews. See
+[`docs/known-limitations.md`](docs/known-limitations.md) for the complete,
+current boundaries.
 
 ## Roadmap
 
-1. Complete review of the sanitized public release through pull request #5.
-2. Configure OIDC identities and protected environments when GitHub enforcement is available.
-3. Run a GitHub plan-only pilot.
-4. Resolve an explicit AKS region/SKU/quota/admin-group combination.
-5. Generate and review a new exact AKS plan before requesting deployment approval.
+1. Complete reproducible v0.1.0 packaging, annotated tagging, tag publication,
+   GitHub Release publication, and downloaded-asset verification.
+2. Maintain pinned dependencies through reviewed Dependabot pull requests.
+3. Scope v0.2.0 work for GitHub OIDC, an explicit AKS
+   region/SKU/quota/admin-group decision, and optional JupyterHub validation.
 
 ## Authorship and license
 

@@ -3,6 +3,9 @@
 ## Current release validation
 
 - Date: 2026-07-20
+- Final main: `f357c7db3652c0d645eff575153511186912209c`
+- Pull request #5: rebase-merged
+- Protect main ruleset: active; merge rule suite `3388422621` passed
 - Environment: local WSL/Linux repository plus approved read-only Azure
   preflight
 - Terraform: 1.15.8
@@ -38,7 +41,7 @@
 | Documentation links | `make docs-check` | PASS | no broken local targets | External links not crawled |
 | Make command surface | `make help` | PASS | all documented targets resolve | Help only |
 | Git whitespace | `git diff --check` | PASS | no whitespace errors | Uncommitted review surface |
-| Public history and surface audit | Gitleaks plus deterministic publication checks | PASS | six branches, complete reachable history, PRs #1–#5, and 13 available Actions logs clean | One startup-failure run had no downloadable log |
+| Public history and surface audit | Gitleaks plus deterministic publication checks | PASS | current five-branch inventory, reachable history, PRs #1–#5, available Actions logs, and protected historical SHAs clean | One startup-failure run had no downloadable log |
 | Dependency Review | public pull-request rerun | PASS | `review` attempt 2 completed successfully | Dependency diff only |
 | Foundation plan/apply | sanitized lifecycle record | PASS | exact 34-resource plan and apply | Foundation only |
 | Foundation no drift/smoke | sanitized lifecycle record | PASS | no changes; expected inventory | Foundation only |
@@ -48,12 +51,17 @@
 | JupyterHub deployment | not run | NOT RUN | AKS prerequisite absent | No endpoint test |
 | GitHub OIDC deployment | not run | NOT RUN | credentials and variables absent | Manual administration required |
 | GitHub Environment gates | not run | NOT RUN | environments absent | Current plan enforcement must be checked |
-| Fresh tracked-file archive | `make package-release` | PASS | ZIP, CSV manifest, and SHA-256 checksums generated; clean extraction reran static checks | Output stored outside repository |
-| Extracted archive Bats/Markdown | Bats 1.12.0 and Markdownlint 0.49.0 | PASS | 6 Bats tests and all Markdown files passed in extracted copy | No live Azure call |
+| Pre-merge packaging implementation | `make package-release` | PASS | tracked-file ZIP, manifest, checksums, and clean extraction passed before the PR #5 merge | Not an official post-merge v0.1.0 candidate |
+| Pre-merge extracted archive | Bats 1.12.0 and Markdownlint 0.49.0 | PASS | 6 Bats tests and all Markdown files passed in the earlier extracted copy | Must be rerun after the corrective merge |
 | Public security settings | GitHub REST API read-back | PASS | secret scanning user alerts, push protection, and private vulnerability reporting enabled; Dependabot unchanged and enabled | Advanced paid or organization-only protections excluded |
 | Public security alerts | GitHub REST API sanitized inventory | PASS | zero secret-scanning and zero Dependabot alerts on 2026-07-20 | Point-in-time observation; scan-history API requires Advanced Security |
 | Code scanning | read-only capability assessment | NOT APPLICABLE | CodeQL default setup is not configured | CodeQL deliberately deferred |
-| Main ruleset | read-only assessment | NOT APPLICABLE | public API available; validated proposal prepared but not applied | Requires explicit authorization |
+| PR #5 rebase merge | REST, GraphQL, CLI, and linear-history verification | PASS | reviewed head rebase-merged to final main `f357c7d`; release branch deleted | Rebased commit IDs differ from source IDs |
+| Main ruleset | ruleset and effective-rule API read-back | PASS | `Protect main` ID `19208283` active; merge rule suite `3388422621` passed all five rules | Zero approving reviews in sole-maintainer baseline |
+| Release documentation inspection | final-main stale-state audit | FAIL | five expected files plus `docs/github/repository-settings.md` contradicted the merged/protected state | Blocks official artifacts |
+| Corrective documentation PR | `docs/v0.1.0-release-readiness` | NOT RUN | correction prepared; pull-request merge remains pending | Must merge before release validation restarts |
+| Post-correction validation and packaging | not run | NOT RUN | requires the new exact main SHA after corrective merge | No official v0.1.0 artifacts exist |
+| Annotated tag and GitHub Release | not run | NOT RUN | no v0.1.0 tag or release exists | Separate later authorization gates |
 
 The full lifecycle evidence, including plan hashes and explicit exclusions, is
 in [`2026-07-18-foundation-lifecycle.md`](2026-07-18-foundation-lifecycle.md).
@@ -67,9 +75,12 @@ and the existing Bats framework. Terraform's provider-mocked tests prove that
 invalid Jupyter/AKS, group-ID, node-count, VM-size, and location combinations
 fail before an Azure plan.
 
-The final package is generated only from committed `HEAD`. Its external
-`file-manifest.csv` records path, size, content SHA-256, and publication
-category; `SHA256SUMS` verifies both the ZIP and manifest.
+The packaging implementation generates from committed `HEAD` only. Its
+external `file-manifest.csv` records path, size, content SHA-256, and
+publication category; `SHA256SUMS` verifies both the ZIP and manifest. The
+earlier package validation predates the PR #5 merge and is not an official
+v0.1.0 candidate. Complete validation, clean extraction, and independent
+reproducibility testing must restart after the corrective documentation merge.
 
 The read-only AKS preflight did not deploy anything. It confirmed that the
 configured VM family quota could cover the requested two vCPUs, but the

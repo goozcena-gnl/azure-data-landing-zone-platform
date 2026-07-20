@@ -8,10 +8,10 @@ Dependabot alerts and security updates remain enabled. The follow-up alert
 inventory found zero secret-scanning alerts and zero Dependabot alerts at that
 point in time.
 
-The clean repository is public. The repository-rulesets API is available and
-returned no configured rulesets. The historical repository remains private.
-The payload below was validated against the successful public pull-request
-checks, but no rule was created or activated.
+The clean repository is public, while the historical repository remains
+private. The `Protect main` ruleset is active as ruleset `19208283` and targets
+only `refs/heads/main`. Its evaluation suite passed for the rebase merge of
+pull request #5.
 
 Automatic partner scanning of public repositories is separate from repository
 user alerts and push protection. Validity checks, extended metadata checks,
@@ -20,13 +20,14 @@ capabilities require an organization and/or paid GitHub Secret Protection
 entitlement that this user-owned repository does not have. CodeQL remains
 deferred and was not enabled.
 
-## Prepared main ruleset
+## Active main ruleset
 
-The reviewed import payload is
-[`main-ruleset.json`](main-ruleset.json). It is prepared but has not been
-submitted. It targets only the default branch and has no bypass actor.
+The reviewed [`main-ruleset.json`](main-ruleset.json) payload is the canonical
+repository record for the active `Protect main` ruleset. GitHub's API read-back
+adds an empty `required_reviewers` collection as a server default. The active
+ruleset has no bypass actor.
 
-The payload requires:
+The ruleset requires:
 
 - pull requests before changes reach `main`;
 - zero approving reviews while there is only one trusted maintainer;
@@ -48,9 +49,9 @@ If a second trusted reviewer becomes available, increase
 `required_approving_review_count` from `0` to `1`; do not enable
 `require_last_push_approval` for a sole maintainer.
 
-Do not apply the ruleset until a repository administrator explicitly
-authorizes the mutation after confirming successful checks on the final pull
-request head.
+The zero-review baseline does not provide independent mandatory human approval.
+Required checks can also block merges during GitHub Actions or runner outages.
+Do not weaken, bypass, or replace the ruleset as an outage workaround.
 
 ## Read-only assessment commands
 
@@ -61,10 +62,13 @@ gh repo view "<github-owner>/<repository>" \
   --json nameWithOwner,visibility,isPrivate,defaultBranchRef
 
 gh api \
-  "repos/<github-owner>/<repository>/branches/main/protection"
+  "repos/<github-owner>/<repository>/rulesets"
 
 gh api \
-  "repos/<github-owner>/<repository>/rulesets"
+  "repos/<github-owner>/<repository>/rulesets/<ruleset-id>"
+
+gh api \
+  "repos/<github-owner>/<repository>/rules/branches/main"
 
 gh api \
   "repos/<github-owner>/<repository>/environments"
@@ -74,8 +78,7 @@ gh secret list --repo "<github-owner>/<repository>"
 ```
 
 An HTTP 403, 404, or unavailable feature is not evidence that protection is
-active. Record repository visibility, organization plan, and the exact API
-result.
+active. Record repository visibility, account plan, and the exact API result.
 
 ## Actions policy
 
@@ -105,10 +108,13 @@ ephemeral or reimaged host, no stored reusable Azure credential, a stable
 allowlisted outbound address for the backend, current patches, restricted
 network egress, and no access to unrelated repositories.
 
-## Apply only after authorization
+## Conditional ruleset recreation
 
-After all three checks have reported on the final pull-request head and the
-maintainer explicitly authorizes the mutation:
+The active ruleset must not be edited, deleted, or replaced without separate
+authorization and a verified recovery plan. If a future repository or an
+explicitly approved recovery requires recreation, first confirm all three
+checks on the exact reviewed pull-request head, then submit the canonical
+payload:
 
 ```bash
 gh api \
@@ -118,11 +124,11 @@ gh api \
   --input docs/github/main-ruleset.json
 ```
 
-Verify the returned ruleset and effective rules with read-only GET requests,
-then use a controlled pull request to prove that direct pushes, force pushes,
-deletion, stale branches, unresolved conversations, and missing checks are
-blocked. The command above is a mutation and must not be run without explicit
-authorization.
+The command above is a mutation and must not be run against the current
+repository while ruleset `19208283` is active. Verify any authorized result and
+effective rules with read-only GET requests, then use a controlled pull request
+to prove that direct pushes, force pushes, deletion, stale branches, unresolved
+conversations, and missing checks are blocked.
 
 ## Publication settings
 
