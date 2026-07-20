@@ -4,8 +4,9 @@
 
 After public visibility, the clean repository was freshly cloned and audited
 across `main`, the release branch, four Dependabot branches, every reachable
-commit, tree, and blob, and all tags. There were 17 unique reachable commits,
-six current branch trees, and no tags or releases.
+commit, tree, and blob, and all tags. The audited history contained only the
+expected migration and documentation commits across six current branch trees,
+with no tags or releases.
 
 Gitleaks 8.30.1 scanned the complete reachable history and every current branch
 tree with full redaction and reported zero leaks. Repository policy,

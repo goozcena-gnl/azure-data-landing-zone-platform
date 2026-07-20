@@ -24,7 +24,7 @@
 | Capability | Status | Evidence boundary |
 | --- | --- | --- |
 | Repository policy and sanitization | PASS | Local policy and secret-pattern checks |
-| Public history and publication surface | PASS | Six branches, 17 reachable commits, PRs #1–#5, and available Actions logs |
+| Public history and publication surface | PASS | Six branches, complete reachable history, PRs #1–#5, and available Actions logs |
 | Dependency Review | PASS | Public pull-request rerun, attempt 2 |
 | Terraform formatting and provider validation | PASS | Both Terraform roots |
 | Foundation saved plan | PASS | `34 add / 0 change / 0 destroy`; hash retained |

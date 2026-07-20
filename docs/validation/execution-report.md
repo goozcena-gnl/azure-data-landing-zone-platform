@@ -38,7 +38,7 @@
 | Documentation links | `make docs-check` | PASS | no broken local targets | External links not crawled |
 | Make command surface | `make help` | PASS | all documented targets resolve | Help only |
 | Git whitespace | `git diff --check` | PASS | no whitespace errors | Uncommitted review surface |
-| Public history and surface audit | Gitleaks plus deterministic publication checks | PASS | six branches, 17 reachable commits, PRs #1–#5, and 13 available Actions logs clean | One startup-failure run had no downloadable log |
+| Public history and surface audit | Gitleaks plus deterministic publication checks | PASS | six branches, complete reachable history, PRs #1–#5, and 13 available Actions logs clean | One startup-failure run had no downloadable log |
 | Dependency Review | public pull-request rerun | PASS | `review` attempt 2 completed successfully | Dependency diff only |
 | Foundation plan/apply | sanitized lifecycle record | PASS | exact 34-resource plan and apply | Foundation only |
 | Foundation no drift/smoke | sanitized lifecycle record | PASS | no changes; expected inventory | Foundation only |
