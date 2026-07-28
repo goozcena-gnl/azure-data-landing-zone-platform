@@ -37,6 +37,24 @@ for workflow in (root / ".github" / "workflows").glob("*.yml"):
                     f"{workflow.relative_to(root)}:{line_number}"
                 )
 
+yamllint_pin = re.compile(r"^\s*yamllint==(\d+\.\d+\.\d+)(?:\s*\\)?\s*$", re.MULTILINE)
+yamllint_versions: dict[str, str] = {}
+for relative_path in ("requirements-dev.txt", ".github/workflows/validate.yml"):
+    matches = yamllint_pin.findall((root / relative_path).read_text(encoding="utf-8"))
+    if len(matches) != 1:
+        errors.append(
+            f"expected exactly one Yamllint version pin in {relative_path}, "
+            f"found {len(matches)}"
+        )
+    else:
+        yamllint_versions[relative_path] = matches[0]
+
+if len(yamllint_versions) == 2 and len(set(yamllint_versions.values())) != 1:
+    errors.append(
+        "Yamllint version mismatch: "
+        + ", ".join(f"{path}={version}" for path, version in yamllint_versions.items())
+    )
+
 if errors:
     print("Repository policy: FAIL")
     print("\n".join(f"- {item}" for item in errors))
