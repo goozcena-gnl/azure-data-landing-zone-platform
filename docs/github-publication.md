@@ -1,19 +1,22 @@
 # GitHub publication and release procedure
 
-## Current v0.1.0 gate
+## Release reference and current v0.1.0 gate
 
-Pull request #5 was rebase-merged into `main` at
-`f357c7db3652c0d645eff575153511186912209c`. The reviewed release branch was
-deleted after the merge.
+Pull request #5 was rebase-merged with historical merge result
+`f357c7db3652c0d645eff575153511186912209c`. Pull request #6 was
+rebase-merged with historical merge result
+`13e964ad48139c2201fd5bf5823634fe2e763caf`. Both merges passed the active
+`Protect main` ruleset without a bypass, and both source branches were deleted.
 
 The clean replacement repository is public, while the historical repository
 remains private. Secret scanning user alerts, push protection, private
 vulnerability reporting, and the active `Protect main` ruleset are enabled.
 
-No v0.1.0 artifact, tag, or GitHub Release exists yet. Release preparation is
-blocked until the focused documentation-correction pull request is merged and
-the complete post-merge validation and reproducibility gate passes on the new
-exact `main` commit.
+No v0.1.0 artifact, tag, or GitHub Release exists yet. The authoritative
+v0.1.0 release source will be the commit targeted by the annotated `v0.1.0`
+tag. The tag is the immutable repository reference. Record its exact target
+SHA in the external/private release-readiness report and the public GitHub
+Release notes after final validation and tag creation.
 
 ## Completed v0.1.0 gates
 
@@ -27,16 +30,17 @@ exact `main` commit.
 6. Dependency Review passed after public visibility.
 7. Pull request #5 passed its required checks, was rebase-merged, and its
    release branch was deleted.
+8. Pull request #6 passed its required checks, was rebase-merged, and its
+   documentation branch was deleted.
 
 ## Remaining v0.1.0 gates
 
-1. Merge the focused documentation-correction pull request.
-2. Rerun complete validation on the new exact `main` commit.
-3. Generate and independently reproduce the tracked-file-only release package.
-4. Create and locally verify an annotated v0.1.0 tag.
-5. Push the verified tag.
-6. Publish the GitHub Release and its three assets.
-7. Download the published assets and verify their checksums and ZIP contents.
+1. Complete validation of the exact `main` commit selected for release.
+2. Generate and independently verify the release artifacts.
+3. Create and verify the annotated `v0.1.0` tag.
+4. Push the verified tag.
+5. Publish the GitHub Release and its three assets.
+6. Download the published assets and verify their checksums and ZIP contents.
 
 Each mutation remains a separate authorization gate. Artifact generation does
 not authorize tagging, tag publication, or GitHub Release publication.
@@ -72,9 +76,9 @@ requires zero approving reviews; it does not claim independent human approval.
 
 ## Reusable post-merge release procedure
 
-Do not reuse a pre-merge archive. After the documentation-correction pull
-request is merged and artifact generation is explicitly authorized, update
-`main` and prove it matches the remote:
+Do not reuse a pre-merge archive. After all changes selected for the release
+are merged and artifact generation is explicitly authorized, update `main`
+and prove it matches the remote:
 
 ```bash
 git switch main
@@ -128,13 +132,13 @@ The extracted archive has no `.git` directory, so the final `git diff --check`
 is not applicable there. Run it in the clean source checkout immediately before
 packaging, and record `NOT APPLICABLE` for that extracted-copy step.
 
-Return to the source checkout and confirm the exact final `main` SHA. Only
-after separate tag, tag-push, and release-publication authorizations, use:
+Return to the source checkout and confirm the exact release-candidate commit.
+Only after separate tag, tag-push, and release-publication authorizations, use:
 
 ```bash
 cd "<absolute-source-repository-directory>"
-FINAL_SHA=$(git rev-parse HEAD)
-git tag -a v0.1.0 "$FINAL_SHA" \
+RELEASE_SHA=$(git rev-parse HEAD)
+git tag -a v0.1.0 "$RELEASE_SHA" \
   -m "v0.1.0: validated Azure foundation lifecycle"
 git push origin v0.1.0
 

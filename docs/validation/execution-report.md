@@ -1,11 +1,27 @@
 # Validation execution report
 
-## Current release validation
+## Release status and historical merge results
 
-- Date: 2026-07-20
-- Final main: `f357c7db3652c0d645eff575153511186912209c`
-- Pull request #5: rebase-merged
-- Protect main ruleset: active; merge rule suite `3388422621` passed
+- Observation date: 2026-07-28
+- Point-in-time branch observation: `main` and `origin/main` were
+  `13e964ad48139c2201fd5bf5823634fe2e763caf` before this focused correction
+  branch was created; this is not a final release SHA
+- Pull request #5 historical rebase-merge result:
+  `f357c7db3652c0d645eff575153511186912209c`
+- Pull request #6 historical rebase-merge result:
+  `13e964ad48139c2201fd5bf5823634fe2e763caf`
+- Protect main ruleset: active; PR #5 rule suite `3388422621` and PR #6 rule
+  suite `3411652180` passed; no bypass occurred
+- Pull request #6: merged; source branch deleted
+- Stale documentation blocker: discovered after the PR #6 merge; this focused
+  correction removes self-invalidating release metadata
+- Authoritative release source: the commit referenced by the annotated
+  `v0.1.0` tag
+- Exact tagged commit: not established until final validation and tag creation
+- Tag status: NOT RUN
+- Package generation: NOT RUN
+- GitHub Release: NOT RUN
+- Complete release-candidate validation and packaging: pending
 - Environment: local WSL/Linux repository plus approved read-only Azure
   preflight
 - Terraform: 1.15.8
@@ -52,15 +68,16 @@
 | GitHub OIDC deployment | not run | NOT RUN | credentials and variables absent | Manual administration required |
 | GitHub Environment gates | not run | NOT RUN | environments absent | Current plan enforcement must be checked |
 | Pre-merge packaging implementation | `make package-release` | PASS | tracked-file ZIP, manifest, checksums, and clean extraction passed before the PR #5 merge | Not an official post-merge v0.1.0 candidate |
-| Pre-merge extracted archive | Bats 1.12.0 and Markdownlint 0.49.0 | PASS | 6 Bats tests and all Markdown files passed in the earlier extracted copy | Must be rerun after the corrective merge |
+| Pre-merge extracted archive | Bats 1.12.0 and Markdownlint 0.49.0 | PASS | 6 Bats tests and all Markdown files passed in the earlier extracted copy | Must be rerun from the exact release-candidate commit |
 | Public security settings | GitHub REST API read-back | PASS | secret scanning user alerts, push protection, and private vulnerability reporting enabled; Dependabot unchanged and enabled | Advanced paid or organization-only protections excluded |
-| Public security alerts | GitHub REST API sanitized inventory | PASS | zero secret-scanning and zero Dependabot alerts on 2026-07-20 | Point-in-time observation; scan-history API requires Advanced Security |
+| Public security alerts | GitHub REST API sanitized inventory | PASS | zero secret-scanning and zero Dependabot alerts on 2026-07-28 | Point-in-time observation; scan-history API requires Advanced Security |
 | Code scanning | read-only capability assessment | NOT APPLICABLE | CodeQL default setup is not configured | CodeQL deliberately deferred |
-| PR #5 rebase merge | REST, GraphQL, CLI, and linear-history verification | PASS | reviewed head rebase-merged to final main `f357c7d`; release branch deleted | Rebased commit IDs differ from source IDs |
-| Main ruleset | ruleset and effective-rule API read-back | PASS | `Protect main` ID `19208283` active; merge rule suite `3388422621` passed all five rules | Zero approving reviews in sole-maintainer baseline |
-| Release documentation inspection | final-main stale-state audit | FAIL | five expected files plus `docs/github/repository-settings.md` contradicted the merged/protected state | Blocks official artifacts |
-| Corrective documentation PR | `docs/v0.1.0-release-readiness` | NOT RUN | correction prepared; pull-request merge remains pending | Must merge before release validation restarts |
-| Post-correction validation and packaging | not run | NOT RUN | requires the new exact main SHA after corrective merge | No official v0.1.0 artifacts exist |
+| PR #5 rebase merge | REST, GraphQL, CLI, and linear-history verification | PASS | reviewed head rebase-merged to historical result `f357c7d`; release branch deleted | Rebased commit IDs differ from source IDs |
+| PR #6 rebase merge | REST, GraphQL, CLI, and linear-history verification | PASS | reviewed head rebase-merged to historical result `13e964a`; documentation branch deleted | Rebased commit IDs differ from source IDs |
+| Main ruleset | ruleset and effective-rule API read-back | PASS | `Protect main` ID `19208283` active; PR #5 suite `3388422621` and PR #6 suite `3411652180` passed all five rules without bypass | Zero approving reviews in sole-maintainer baseline |
+| Post-PR #6 documentation inspection (historical) | self-invalidating release-state audit | FAIL | stale branch-tip and PR #6 status wording was discovered after merge | Historical failure resolved by the stable-metadata correction |
+| Stable release-metadata correction | focused documentation correction | PASS | separates historical merge results, point-in-time observations, and the future tag target | Final validation remains a separate post-merge operation |
+| Post-correction validation and packaging | not run | NOT RUN | requires the exact `main` commit selected after all pre-release changes merge | No official v0.1.0 artifacts exist |
 | Annotated tag and GitHub Release | not run | NOT RUN | no v0.1.0 tag or release exists | Separate later authorization gates |
 
 The full lifecycle evidence, including plan hashes and explicit exclusions, is
@@ -80,7 +97,8 @@ external `file-manifest.csv` records path, size, content SHA-256, and
 publication category; `SHA256SUMS` verifies both the ZIP and manifest. The
 earlier package validation predates the PR #5 merge and is not an official
 v0.1.0 candidate. Complete validation, clean extraction, and independent
-reproducibility testing must restart after the corrective documentation merge.
+reproducibility testing must restart from the exact `main` commit selected for
+release after all pre-release changes are merged.
 
 The read-only AKS preflight did not deploy anything. It confirmed that the
 configured VM family quota could cover the requested two vCPUs, but the
