@@ -117,17 +117,17 @@ Azure deployment additionally requires Azure CLI, an Azure subscription, suitabl
 
 ## Static validation
 
+For reproducible WSL 2, Linux, and VS Code Dev Container setup, use the
+[local-development guide](docs/local-development.md).
+
 ```bash
 git clone <REPOSITORY_URL>
 cd azure-data-landing-zone-platform
-python3 -m venv .venv
+bash scripts/bootstrap-local.sh
 source .venv/bin/activate
-python3 -m pip install -r requirements-dev.txt
-make lint
-make validate
-make security
-make backend-test
-make docs-check
+export PATH="$HOME/.local/bin:$PATH"
+make doctor
+make test-strict
 ```
 
 These commands do not deploy Azure resources.

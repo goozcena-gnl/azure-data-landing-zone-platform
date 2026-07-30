@@ -2,7 +2,8 @@
 
 1. Branch from `main` and keep changes single-purpose.
 2. Update documentation and examples with code changes.
-3. Run `make test` in an isolated environment.
+3. Follow the [local-development guide](docs/local-development.md), then run
+   `make doctor` and `make test-strict` in an isolated environment.
 4. Review staged changes for credentials and generated files.
 5. Open a pull request using the template.
 

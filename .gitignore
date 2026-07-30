@@ -1,5 +1,7 @@
 # Terraform
 **/.terraform/*
+# Provider locks belong to root modules, not reusable child modules.
+infra/modules/**/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfplan
