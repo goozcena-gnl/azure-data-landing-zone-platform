@@ -1,0 +1,6 @@
+*
+!.devcontainer/
+!.devcontainer/Dockerfile
+!.tflint.hcl
+!tools/
+!tools/versions.env
