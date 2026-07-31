@@ -109,15 +109,17 @@ Static validation:
 
 - Git and Bash;
 - Terraform `1.15.8`;
-- Python 3.11+, `jq`, and `requirements-dev.txt`;
-- TFLint `0.63.1` with AzureRM rules;
+- Python 3.12.x (the lock was generated and tested with 3.12.3), `jq`, and the
+  hash-locked `requirements-dev.lock`;
+- TFLint `0.64.0` with AzureRM rules 0.32.0;
 - Make, ShellCheck, and Markdownlint CLI.
 
 Azure deployment additionally requires Azure CLI, an Azure subscription, suitable quota/permissions, and `kubectl`/Helm for optional AKS validation. WSL 2 or Linux is recommended on Windows.
 
 ## Static validation
 
-For reproducible WSL 2, Linux, and VS Code Dev Container setup, use the
+For a version-constrained, functionally repeatable WSL 2, Linux, and VS Code
+Dev Container setup, use the
 [local-development guide](docs/local-development.md).
 
 ```bash

@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 SHELL := /usr/bin/env bash
 
-.PHONY: help bootstrap doctor format lint lint-strict lint-best-effort validate terraform-test security backend-test bats-test tooling-test test test-strict test-container aks-preflight plan-lab deploy-lab smoke-test destroy-lab docs-check package-release
+.PHONY: help bootstrap doctor format lint lint-strict lint-best-effort validate terraform-test security backend-test bats-test tooling-test test test-strict test-container scan-container aks-preflight plan-lab deploy-lab smoke-test destroy-lab docs-check package-release
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "; printf "Usage: make <target>\n\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -40,7 +40,7 @@ bats-test: ## Run local-environment and existing backend Bats tests
 	bats tests/*.bats terraform_backend_setup/tests/terraform_setup.bats
 
 tooling-test: ## Run tool-manifest and version-drift unit tests
-	python3 -m unittest -v tests/test_tool_versions.py
+	python3 -m unittest discover -v -s tests -p 'test_*.py'
 
 test: test-strict ## Run all strict non-deployment checks
 
@@ -48,6 +48,9 @@ test-strict: doctor lint-strict tooling-test validate terraform-test security ba
 
 test-container: ## Build the Dev Container image and run strict validation in it
 	bash ./scripts/test-container.sh
+
+scan-container: ## Build the Dev Container without cache and enforce image security policy
+	bash ./scripts/scan-container.sh --build-no-cache
 
 aks-preflight: ## Run read-only AKS subscription, SKU, quota, and identity checks
 	bash ./scripts/aks-preflight.sh

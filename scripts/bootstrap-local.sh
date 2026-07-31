@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+early_required=(dirname grep uname)
+early_missing=()
+for command in "${early_required[@]}"; do
+  command -v "$command" >/dev/null 2>&1 || early_missing+=("$command")
+done
+if ((${#early_missing[@]})); then
+  printf 'ERROR: required preflight commands are missing: %s\n' "${early_missing[*]}" >&2
+  exit 1
+fi
+
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd -- "$SCRIPT_DIR/.." && pwd)
 VERSIONS_FILE="$REPO_ROOT/tools/versions.env"
@@ -14,8 +24,9 @@ usage() {
   cat <<'EOF'
 Usage: scripts/bootstrap-local.sh [--user|--system] [--python-only] [--print-plan]
 
-Install the exact supported local-validation toolchain on Ubuntu/Debian Linux
-or WSL 2. User mode writes under ~/.local and is the default. System mode must
+Install the version-constrained local-validation toolchain on x86-64 Ubuntu
+24.04 LTS or WSL 2 with Ubuntu 24.04 LTS. User mode writes under ~/.local and
+is the default. System mode must
 be invoked explicitly as root, for example:
 
   sudo bash scripts/bootstrap-local.sh --system
@@ -52,19 +63,25 @@ source "$VERSIONS_FILE"
   printf 'ERROR: bootstrap supports Linux and WSL 2 only.\n' >&2
   exit 1
 }
+architecture=$(uname -m)
+case "$architecture" in
+  x86_64|amd64) ;;
+  *)
+    printf 'ERROR: bootstrap supports x86-64/amd64 only; found %s. Use the supported amd64 environment.\n' "$architecture" >&2
+    exit 1
+    ;;
+esac
 [[ -r /etc/os-release ]] || {
   printf 'ERROR: /etc/os-release is unavailable.\n' >&2
   exit 1
 }
 # shellcheck disable=SC1091
 source /etc/os-release
-case "${ID:-}" in
-  ubuntu|debian) ;;
-  *)
-    printf 'ERROR: automatic bootstrap supports Ubuntu/Debian only; found %s.\n' "${ID:-unknown}" >&2
-    exit 1
-    ;;
-esac
+if [[ "${ID:-}" != ubuntu || "${VERSION_ID:-}" != 24.04 ]]; then
+  printf 'ERROR: automatic bootstrap supports Ubuntu 24.04 LTS only; found %s %s.\n' \
+    "${ID:-unknown}" "${VERSION_ID:-unknown}" >&2
+  exit 1
+fi
 
 if [[ "$mode" == system ]]; then
   [[ "$EUID" -eq 0 ]] || {
@@ -82,30 +99,36 @@ cache_dir="${XDG_CACHE_HOME:-${HOME}/.cache}/azure-data-landing-zone-platform/do
 plan() { printf '%s\n' "$*"; }
 die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
-required_system=(bash git make curl unzip tar python3)
+required_system=(
+  awk bash chmod cp curl dirname git grep head install ln make mkdir mktemp mv
+  python3 rm sha256sum tar uname unzip
+)
 missing=()
 for command in "${required_system[@]}"; do
   command -v "$command" >/dev/null 2>&1 || missing+=("$command")
 done
 if ((${#missing[@]})); then
   printf 'ERROR: required system commands are missing: %s\n' "${missing[*]}" >&2
-  printf 'Ubuntu/Debian system-install command:\n' >&2
-  printf '  sudo apt-get update && sudo apt-get install -y git make curl unzip tar python3 python3-venv\n' >&2
+  printf 'Ubuntu 24.04 system-install command:\n' >&2
+  printf '  sudo apt-get update && sudo apt-get install -y bash coreutils curl gawk git grep make python3 python3-venv tar unzip\n' >&2
   exit 1
 fi
 
 actual_python=$(python3 --version 2>&1 | awk '{print $2}')
-[[ "$actual_python" == "$PYTHON_VERSION" ]] ||
-  die "Python $PYTHON_VERSION is required; found $actual_python. Install the supported Python before retrying."
+case "$actual_python" in
+  "$PYTHON_SERIES"|"$PYTHON_SERIES".*) ;;
+  *) die "Python $PYTHON_SERIES.x is required; found $actual_python. Install the supported Ubuntu Python before retrying." ;;
+esac
 [[ -f "$LOCK_FILE" ]] || die "Missing hashed Python lock file: requirements-dev.lock"
 
 baseline_status=$(git -C "$REPO_ROOT" status --porcelain=v1 --untracked-files=normal)
 
 plan "Mode: $mode"
 plan "Install prefix: $prefix"
-plan "Python: $PYTHON_VERSION -> .venv from requirements-dev.lock"
+plan "Python: $PYTHON_SERIES.x (tested $PYTHON_TESTED_VERSION) -> .venv from requirements-dev.lock"
 if [[ "$python_only" == false ]]; then
   plan "Node.js: $NODE_VERSION"
+  plan "npm: $NPM_VERSION"
   plan "Terraform: $TERRAFORM_VERSION"
   plan "TFLint: $TFLINT_VERSION (AzureRM plugin $TFLINT_AZURERM_PLUGIN_VERSION)"
   plan "Markdownlint CLI: $MARKDOWNLINT_VERSION"
@@ -168,8 +191,11 @@ install_node() {
   mkdir -p "$(dirname "$node_target")"
   cp -a "$node_source" "$node_target"
   ln -sfn "$node_target/bin/node" "$bin_dir/node"
-  ln -sfn "$node_target/lib/node_modules/npm/bin/npm-cli.js" "$bin_dir/npm"
-  ln -sfn "$node_target/lib/node_modules/npm/bin/npx-cli.js" "$bin_dir/npx"
+  rm -f -- "$bin_dir/npm" "$bin_dir/npx"
+  "$node_target/bin/node" \
+    "$node_target/lib/node_modules/npm/bin/npm-cli.js" \
+    install --global --prefix "$prefix" "npm@${NPM_VERSION}"
+  rm -rf -- "$node_target/lib/node_modules/npm"
   rm -rf -- "$temporary"
 }
 
@@ -236,6 +262,8 @@ if [[ "$python_only" == false ]]; then
   chmod 0755 "$bin_dir/jq"
 
   npm install --global --prefix "$prefix" "markdownlint-cli@${MARKDOWNLINT_VERSION}"
+  rm -rf -- "$prefix/lib/node_modules/npm"
+  rm -f -- "$bin_dir/npm" "$bin_dir/npx"
 
   bats_source="$share_dir/bats-core/$BATS_VERSION"
   if [[ -d "$bats_source/.git" ]]; then

@@ -1,8 +1,9 @@
 # Local development
 
-This guide reproduces every non-deployment validation category used by the
-repository. It supports Ubuntu/Debian Linux, Windows 11 with WSL 2, and the
-VS Code Dev Container.
+This guide provides a version-constrained, functionally repeatable way to run
+every non-deployment validation category used by the repository. Native and
+WSL paths support x86-64 Ubuntu 24.04 LTS; WSL must be version 2. The VS Code
+Dev Container supports a Docker-compatible amd64 environment.
 
 None of these paths authenticates to Azure or runs Terraform plan, apply, or
 destroy. They do not emulate Azure, AKS, Microsoft Entra, GitHub OIDC, GitHub
@@ -17,29 +18,33 @@ drifts from it.
 | Tool | Supported version | Local-validation role |
 | --- | ---: | --- |
 | Terraform | 1.15.8 | Formatting, backend-disabled validation, mocked tests |
-| TFLint | 0.63.1 | Terraform lint |
-| TFLint AzureRM rules | 0.28.0 | AzureRM static rules |
-| Python | 3.12.3 | Policy, security, documentation, and Checkov |
+| TFLint | 0.64.0 | Terraform lint |
+| TFLint AzureRM rules | 0.32.0 | AzureRM static rules |
+| Python series | 3.12.x | Supported interpreter series |
+| Python tested patch | 3.12.3 | Lock generation and recorded test baseline |
 | Node.js | 24.18.1 | Exact Markdownlint CLI installation and execution |
+| npm | 12.0.2 | Bootstrap-only installer; removed after tool installation |
 | Checkov | 3.3.8 | IaC security checks |
 | Yamllint | 1.38.0 | YAML lint |
 | ShellCheck | 0.11.0 | Shell static analysis |
-| Markdownlint CLI | 0.49.0 | Markdown lint |
+| Markdownlint CLI | 0.49.1 | Markdown lint |
 | pre-commit | 4.6.1 | Contributor hook runner |
 | Helm | 4.2.3 | Optional deployment tooling |
-| kubectl | 1.35.1 | Optional deployment tooling |
+| kubectl | 1.35.7 | Optional deployment tooling |
 | Kubeconform | 0.8.0 | Optional Kubernetes manifest validation |
 | jq | 1.8.1 | Backend-helper fixture parsing and regression tests |
 | Bats Core | 1.14.0 | Shell regression tests |
+| Trivy | 0.72.0 | Pinned final-image vulnerability and secret scanner |
 
 Terraform provider lock files currently select AzureRM 4.81.0 and Random
 3.9.0. Bootstrap does not update provider locks.
 
 ## Common prerequisites
 
-- x86-64 Ubuntu 24.04 or Debian-compatible Linux;
+- x86-64 Ubuntu 24.04 LTS;
 - Git, Bash, Make, `curl`, `unzip`, `tar`, and `sha256sum`;
-- Python 3.12.3 with the `venv` module;
+- a Python 3.12 patch with the `venv` module (the tested lock baseline is
+  Python 3.12.3);
 - no preinstalled Node.js or npm; bootstrap installs the native Linux runtime;
 - network access for the first bootstrap, provider/plugin initialization,
   pre-commit environments, and Dev Container build.
@@ -71,7 +76,7 @@ directs contributors to WSL 2 or the Dev Container.
 
 ## Native Linux setup
 
-On an x86-64 Ubuntu/Debian host:
+On an x86-64 Ubuntu 24.04 LTS host:
 
 ```bash
 git clone https://github.com/goozcena-gnl/azure-data-landing-zone-platform.git
@@ -110,12 +115,17 @@ The image:
 - uses an immutable Ubuntu 24.04 x86-64 image digest;
 - runs as the image's non-root `ubuntu` user;
 - installs exact manifest versions;
+- enables the Dev Containers-supported remote-user UID update so a VS Code
+  session can align the container user with the host where the runtime
+  supports it;
 - mounts no Docker socket by default;
 - uses neither privileged nor host-network mode;
 - contains no credential or Azure login step.
 
-The post-create command installs the hashed Python environment and runs the
-doctor. To reproduce the same image and strict validation without VS Code:
+The post-create command installs the hash-locked Python environment and runs
+the doctor. `make test-container` streams a filtered source archive into a
+disposable non-root container workspace; it never bind-mounts the authoritative
+checkout and verifies that host inventory and status do not change:
 
 ```bash
 make test-container
@@ -134,7 +144,7 @@ Docker is not required for WSL 2 or native-Linux contributors.
 - the exact TFLint AzureRM plugin is initialized from `.tflint.hcl`;
 - tracked and ordinary untracked Git status must be identical before and after.
 
-Inspect the deterministic plan without changing the machine:
+Inspect the stable, version-constrained plan without changing the machine:
 
 ```bash
 bash scripts/bootstrap-local.sh --print-plan
@@ -265,9 +275,43 @@ git ls-files --stage '*.sh'
 Mode `100755` is expected for executable scripts. Do not repair line endings
 with tools that rewrite unrelated files.
 
+## Reproducibility and network boundaries
+
+The local environment is partially reproducible overall, not byte-for-byte
+reproducible. Directly downloaded tools are checksum-verified, and the tested
+Python dependency graph is hash-locked. The following inputs remain dependent
+on network state or time:
+
+- Ubuntu apt repository metadata and package revisions;
+- npm transitive dependency resolution during bootstrap;
+- pre-commit environment creation;
+- TFLint plugin initialization from upstream artifacts;
+- vulnerability results as the Trivy database changes.
+
+Release packaging is a separate process and its byte-for-byte reproducibility
+is independently tested; these limitations do not weaken that release claim.
+
+The Dev Container omits optional Helm, kubectl, and Kubeconform binaries because
+strict non-deployment validation does not require them. Native bootstrap can
+install their manifest-pinned versions for separately authorized deployment
+work. Azure CLI and kubelogin remain optional and unconstrained. GitHub Action
+SHAs, application image tags, and chart versions intentionally remain governed
+at their active source locations rather than `tools/versions.env`.
+
+Run the pinned image vulnerability and secret gate with:
+
+```bash
+make scan-container
+```
+
+The gate records Trivy and database metadata, rejects every CRITICAL finding,
+and requires an exact, owned, expiring record for any HIGH finding without a
+supported owning-tool fix. It uses no scanner credentials and does not mount a
+Docker socket inside the Dev Container.
+
 ## Offline and network-required checks
 
-Offline after caches are populated:
+Can run without further downloads after their required caches are populated:
 
 - doctor;
 - repository and version-drift policy;
