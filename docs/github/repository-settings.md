@@ -125,6 +125,9 @@ official action verifies the selected binary against the release checksum and
 GitHub build-provenance attestation. The repository overlay keeps Plumber's
 maintained defaults, removes GitHub-owner exemptions from SHA enforcement, and
 authorizes only the exact additional action already used by this repository.
+The repository Actions policy likewise keeps full-length SHA enforcement and
+adds only `getplumber/plumber@7ad9d267ee5a00163cec9e5c749a088d5f565167`
+to its existing external-action allowlist.
 
 Successful and failed runs produce JSON, SARIF, PBOM, and CycloneDX reports.
 SARIF findings appear under GitHub Code scanning. The report bundle appears as
