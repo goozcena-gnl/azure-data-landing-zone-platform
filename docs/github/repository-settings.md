@@ -34,7 +34,7 @@ The ruleset requires:
 - conversation resolution;
 - a current branch before merge;
 - linear history with squash or rebase merge;
-- the three GitHub Actions checks below;
+- the four GitHub Actions checks below;
 - blocked force pushes and branch deletion.
 
 | GitHub check | Ruleset context | Source |
@@ -42,6 +42,7 @@ The ruleset requires:
 | `Validate / repository` | `repository` | GitHub Actions app `15368` |
 | `Validate / terraform` | `terraform` | GitHub Actions app `15368` |
 | `Dependency review / review` | `review` | GitHub Actions app `15368` |
+| `Plumber CI/CD Security / Plumber gate` | `Plumber gate` | GitHub Actions app `15368` |
 
 GitHub's ruleset API uses the job context, not the displayed
 `workflow / job` label. The job names are unique across repository workflows.
@@ -174,7 +175,7 @@ network egress, and no access to unrelated repositories.
 
 The active ruleset must not be edited, deleted, or replaced without separate
 authorization and a verified recovery plan. If a future repository or an
-explicitly approved recovery requires recreation, first confirm all three
+explicitly approved recovery requires recreation, first confirm all four
 checks on the exact reviewed pull-request head, then submit the canonical
 payload:
 
