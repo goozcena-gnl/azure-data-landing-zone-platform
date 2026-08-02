@@ -42,6 +42,10 @@ checkov-results.*
 trivy-results.*
 scan-results.*
 *.sarif
+plumber-report.json
+plumber.sarif
+plumber-pbom.json
+plumber-cyclonedx-sbom.json
 
 # Tool binaries and archives
 terraform

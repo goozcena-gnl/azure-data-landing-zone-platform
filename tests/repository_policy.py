@@ -26,15 +26,23 @@ for path in root.rglob("*"):
         if private_marker in data or openssh_marker in data:
             errors.append(f"private key marker: {rel_s}")
 
-sha_action = re.compile(r"^\s*uses:\s+[^./][^@\s]*@([0-9a-f]{40})(?:\s+#.*)?$")
-for workflow in (root / ".github" / "workflows").glob("*.yml"):
-    for line_number, line in enumerate(workflow.read_text(encoding="utf-8").splitlines(), 1):
+sha_action = re.compile(
+    r"^\s*uses:\s+[^./][^@\s]*@[0-9a-f]{40}"
+    r"\s+#\s+v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z._-]+)?\s*$"
+)
+action_files = sorted((root / ".github" / "workflows").glob("*.y*ml"))
+actions_root = root / ".github" / "actions"
+if actions_root.is_dir():
+    action_files.extend(sorted(actions_root.rglob("*.y*ml")))
+
+for action_file in action_files:
+    for line_number, line in enumerate(action_file.read_text(encoding="utf-8").splitlines(), 1):
         stripped = line.strip()
         if stripped.startswith("uses:") and not stripped.startswith("uses: ./"):
             if not sha_action.match(line):
                 errors.append(
-                    f"GitHub Action is not pinned to a full commit SHA: "
-                    f"{workflow.relative_to(root)}:{line_number}"
+                    "GitHub Action must use a full commit SHA and an adjacent "
+                    f"semantic-version comment: {action_file.relative_to(root)}:{line_number}"
                 )
 
 yamllint_pin = re.compile(r"^\s*yamllint==(\d+\.\d+\.\d+)(?:\s*\\)?\s*$", re.MULTILINE)

@@ -1,0 +1,13 @@
+extends: plumber:default
+version: "2.0"
+
+github:
+  controls:
+    actionsMustBePinnedByCommitSha:
+      # GitHub-maintained actions must meet the same immutable-pin policy.
+      trustedOwners: []
+    githubActionMustComeFromAuthorizedSources:
+      # Retain Plumber's curated baseline and authorize only the action used here.
+      includePlumberDefaults: true
+      trustedGithubActions:
+        - terraform-linters/setup-tflint
