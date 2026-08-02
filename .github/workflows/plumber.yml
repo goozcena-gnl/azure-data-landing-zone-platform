@@ -1,0 +1,45 @@
+name: Plumber CI/CD Security
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: plumber-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plumber:
+    name: Plumber gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Analyze GitHub Actions supply chain
+        uses: getplumber/plumber@7ad9d267ee5a00163cec9e5c749a088d5f565167  # v0.4.26
+        with:
+          version: v0.4.26
+          verify-attestation: true
+          config-file: .plumber.yaml
+          min-score: A
+          fail-warnings: true
+          soft-fail: false
+          score-push: false
+          upload-sarif: true
+          upload-artifacts: true
+          artifact-name: plumber-security-reports
+          output: plumber-report.json
+          sarif: plumber.sarif
+          pbom: plumber-pbom.json
+          pbom-cyclonedx: plumber-cyclonedx-sbom.json
