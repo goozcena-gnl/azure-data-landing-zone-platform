@@ -27,6 +27,12 @@ Key capabilities:
 
 ## Architecture
 
+<p align="center">
+  <img src="docs/assets/portfolio/azure-validation-boundary.svg" alt="Architecture and evidence boundary separating the validated Azure foundation lifecycle from implemented but runtime-unverified AKS, JupyterHub, and GitHub OIDC paths" width="100%" />
+</p>
+
+<p align="center"><sub><strong>Architecture + evidence boundary.</strong> Solid green denotes the empirically validated foundation lifecycle; the dashed amber area is implemented or prepared but was not runtime-exercised.</sub></p>
+
 ```mermaid
 flowchart TB
   Dev[Engineer or GitHub Actions] -->|Microsoft Entra / OIDC| Azure[Azure subscription]
