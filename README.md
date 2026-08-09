@@ -2,7 +2,10 @@
 
 > A Terraform-based Azure cloud platform lab combining governance, networking, secure state, and an empirically validated deploy–destroy lifecycle.
 
-The foundation path was deployed, smoke-tested, verified for no drift, destroyed, and residual-checked. AKS, JupyterHub, and GitHub OIDC remain implemented or documented but not runtime-validated.
+The foundation path was deployed, smoke-tested, verified for no drift,
+destroyed, and residual-checked. AKS, Entra-integrated AKS administration,
+JupyterHub, GitHub OIDC, and GitHub-controlled deployment remain implemented,
+documented, or prepared but not runtime-validated.
 
 [![Validate](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/validate.yml)
 [![Dependency review](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/dependency-review.yml)
@@ -10,20 +13,6 @@ The foundation path was deployed, smoke-tested, verified for no drift, destroyed
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Evidence: [foundation lifecycle record](docs/validation/2026-07-18-foundation-lifecycle.md) and [test matrix](docs/validation/test-matrix.md).
-
-## Project value
-
-The repository refactors a learning-and-delivery workspace created during Cloud/DevOps training. The source archive mixed project code, reports, generated Terraform artifacts, credentials, scanner outputs, downloaded binaries, and complete upstream repositories. The public version preserves the useful architecture while removing unsafe or misleading content.
-
-Key capabilities:
-
-- secure Terraform state bootstrap on Azure Storage using Microsoft Entra data-plane authorization;
-- modular resource groups, VNet/subnets, NSGs, Log Analytics, and optional private Key Vault;
-- Azure Policy definitions and assignments for locations and required tags;
-- optional AKS with Microsoft Entra Azure RBAC, disabled local accounts, OIDC, Workload Identity, Azure CNI Overlay, and Cilium;
-- JupyterHub represented as a version-pinned Helm overlay rather than vendored upstream source;
-- pull-request validation plus OIDC-ready plan/apply and destroy workflows designed for protected environments;
-- explicit evidence levels: implemented, statically validated, planned, deployed, smoke-tested, or not run.
 
 ## Architecture
 
@@ -62,7 +51,49 @@ ClusterIP only]
   AKS --> JH
 ```
 
-Detailed design: [`docs/architecture/overview.md`](docs/architecture/overview.md). The complete publishable tree is recorded in [`docs/repository-tree.md`](docs/repository-tree.md).
+Detailed design: [`docs/architecture/overview.md`](docs/architecture/overview.md).
+For a concise problem-to-trade-offs review, use the
+[`docs/interview-walkthrough.md`](docs/interview-walkthrough.md) route. The
+complete publishable tree is recorded in
+[`docs/repository-tree.md`](docs/repository-tree.md).
+
+## Platform scope
+
+Key capabilities:
+
+- secure Terraform state bootstrap on Azure Storage using Microsoft Entra data-plane authorization;
+- modular resource groups, VNet/subnets, NSGs, Log Analytics, and optional private Key Vault;
+- Azure Policy definitions and assignments for locations and required tags;
+- optional AKS with Microsoft Entra Azure RBAC, disabled local accounts, OIDC, Workload Identity, Azure CNI Overlay, and Cilium;
+- JupyterHub represented as a version-pinned Helm overlay rather than vendored upstream source;
+- pull-request validation plus OIDC-ready plan/apply and destroy workflows designed for protected environments;
+- explicit evidence levels: implemented, statically validated, planned, deployed, smoke-tested, or not run.
+
+| Capability | Default | Current evidence |
+| --- | ---: | --- |
+| Resource groups, VNet, NSGs, Log Analytics | Enabled | Implemented, statically validated, deployed, smoke-tested, destroyed |
+| Tag/location policies | Enabled | Implemented, statically validated, deployed, inventory-checked, destroyed |
+| Private Key Vault | Disabled | Implemented; not deployed |
+| AKS | Disabled | Implemented and statically validated; preflight added; not deployed |
+| JupyterHub | Disabled/manual after AKS | Overlay implemented; not deployed |
+| GitHub OIDC deployment | Manual | Workflows and guides prepared; environments/credentials absent; not exercised |
+| Databricks, Synapse, SQL, Data Factory, VM | Excluded | Historical prototypes, not validated here |
+| Azure Naming Tool | Externalized | Upstream dependency only |
+
+## Architecture and decisions
+
+- State configuration uses `use_azuread_auth = true`; no storage key is written to files.
+- Foundation-only deployment is the default low-cost path.
+- AKS local accounts are disabled and administration requires a Microsoft Entra group.
+- Kubernetes credentials are never Terraform outputs; a helper writes an ignored, isolated kubeconfig.
+- GitHub Actions uses OIDC instead of a reusable Azure client secret.
+- Upstream source trees are removed and replaced by pinned dependencies or attribution notes.
+- Destruction and Azure inventory verification are mandatory before claiming lab validation.
+
+See the [architecture overview](docs/architecture/overview.md),
+[accepted decision records](docs/decisions/),
+[`SECURITY.md`](SECURITY.md), and the
+[security exception register](docs/security/scan-exceptions.md).
 
 ## Repository structure
 
@@ -79,32 +110,9 @@ tests/                      Publication-policy checks
 docs/                       Architecture, security, lab, migration, and evidence
 ```
 
-## Scope and evidence
+## Validation and limitations
 
-| Capability | Default | Current evidence |
-| --- | ---: | --- |
-| Resource groups, VNet, NSGs, Log Analytics | Enabled | Implemented, statically validated, deployed, smoke-tested, destroyed |
-| Tag/location policies | Enabled | Implemented, statically validated, deployed, inventory-checked, destroyed |
-| Private Key Vault | Disabled | Implemented; not deployed |
-| AKS | Disabled | Implemented and statically validated; preflight added; not deployed |
-| JupyterHub | Disabled/manual after AKS | Overlay implemented; not deployed |
-| GitHub OIDC deployment | Manual | Workflows and guides prepared; environments/credentials absent; not exercised |
-| Databricks, Synapse, SQL, Data Factory, VM | Excluded | Historical prototypes, not validated here |
-| Azure Naming Tool | Externalized | Upstream dependency only |
-
-## Security decisions
-
-- State configuration uses `use_azuread_auth = true`; no storage key is written to files.
-- Foundation-only deployment is the default low-cost path.
-- AKS local accounts are disabled and administration requires a Microsoft Entra group.
-- Kubernetes credentials are never Terraform outputs; a helper writes an ignored, isolated kubeconfig.
-- GitHub Actions uses OIDC instead of a reusable Azure client secret.
-- Upstream source trees are removed and replaced by pinned dependencies or attribution notes.
-- Destruction and Azure inventory verification are mandatory before claiming lab validation.
-
-See [`SECURITY.md`](SECURITY.md), [`docs/security/scan-exceptions.md`](docs/security/scan-exceptions.md), and [`docs/decisions/`](docs/decisions/).
-
-## Prerequisites
+### Prerequisites
 
 Static validation:
 
@@ -116,7 +124,7 @@ Static validation:
 
 Azure deployment additionally requires Azure CLI, an Azure subscription, suitable quota/permissions, and `kubectl`/Helm for optional AKS validation. WSL 2 or Linux is recommended on Windows.
 
-## Static validation
+### Static validation
 
 ```bash
 git clone <REPOSITORY_URL>
@@ -133,7 +141,35 @@ make docs-check
 
 These commands do not deploy Azure resources.
 
-## Low-cost deployment path
+### Empirical validation
+
+Evidence uses explicit statuses:
+
+- `PASS`: command executed and evidence supports success;
+- `FAIL`: command executed and evidence supports failure;
+- `BLOCKED`: an external permission, credential, network, or tool prevented execution;
+- `NOT RUN`: not attempted;
+- `NOT APPLICABLE`: outside the retained scope.
+
+The [test matrix](docs/validation/test-matrix.md) and
+[validated lifecycle record](docs/validation/2026-07-18-foundation-lifecycle.md)
+record a reviewed `34 add / 0 change / 0 destroy` plan, exact-plan apply,
+no-drift refresh, smoke tests, a reviewed `34 destroy` plan, exact destruction,
+residual checks, and separate backend deletion.
+
+### Current limitations
+
+AKS was blocked in the assessed subscription/region by the configured SKU,
+unsuitable alternatives/quota, and the absence of an eligible Entra admin
+group. No fallback was selected. GitHub environments and OIDC credentials are
+absent. The active `Protect main` ruleset enforces checks and pull requests,
+but the sole-maintainer baseline requires zero approving reviews. See
+[`docs/known-limitations.md`](docs/known-limitations.md) for the complete,
+current boundaries.
+
+## Deployment and teardown
+
+### Foundation deployment
 
 ```bash
 az login
@@ -156,7 +192,7 @@ make smoke-test
 
 Full runbook: [`docs/lab/deployment.md`](docs/lab/deployment.md).
 
-## Optional AKS and JupyterHub
+### Optional AKS and JupyterHub
 
 Before enabling AKS, verify current regional SKU availability, quota, Kubernetes support, and pricing. Configure a Microsoft Entra admin group and an authorized API CIDR:
 
@@ -181,29 +217,7 @@ make smoke-test
 
 The JupyterHub lab uses dummy authentication and a `ClusterIP` service. It must not be exposed to untrusted networks.
 
-## Validation statuses
-
-- `PASS`: command executed and evidence supports success;
-- `FAIL`: command executed and evidence supports failure;
-- `BLOCKED`: an external permission, credential, network, or tool prevented execution;
-- `NOT RUN`: not attempted;
-- `NOT APPLICABLE`: outside the retained scope.
-
-Test matrix: [`docs/validation/test-matrix.md`](docs/validation/test-matrix.md).
-
-Validated lifecycle record: [`docs/validation/2026-07-18-foundation-lifecycle.md`](docs/validation/2026-07-18-foundation-lifecycle.md).
-
-The detailed foundation evidence records a reviewed
-`34 add / 0 change / 0 destroy` plan, exact-plan apply, no-drift refresh, smoke
-tests, a reviewed `34 destroy` plan, exact destruction, residual checks, and
-separate backend deletion.
-
-The clean replacement repository is public, while the historical repository
-remains private. The active `Protect main` ruleset protects `main`; repository,
-Terraform, and Dependency Review checks passed, and secret scanning, push
-protection, and private vulnerability reporting are enabled.
-
-## Teardown
+### Teardown
 
 ```bash
 export TF_VAR_name_prefix="<YOUR_PREFIX>"
@@ -212,19 +226,9 @@ make destroy-lab
 
 The backend is destroyed separately only after every component state is clean. See [`docs/lab/destroy.md`](docs/lab/destroy.md).
 
-## Cost controls
+### Cost controls
 
 AKS is opt-in and defaults to one system node on the Free management tier, but VMs, disks, load balancing, logs, networking, and egress remain billable. Log Analytics uses a 1 GB/day quota and 30-day default retention. Create an Azure Budget and destroy the lab promptly. Broad planning envelopes and mandatory recalculation steps are documented in [`docs/lab/cost-control.md`](docs/lab/cost-control.md).
-
-## Known limitations
-
-AKS was blocked in the assessed subscription/region by the configured SKU,
-unsuitable alternatives/quota, and the absence of an eligible Entra admin
-group. No fallback was selected. GitHub environments and OIDC credentials are
-absent. The active `Protect main` ruleset enforces checks and pull requests,
-but the sole-maintainer baseline requires zero approving reviews. See
-[`docs/known-limitations.md`](docs/known-limitations.md) for the complete,
-current boundaries.
 
 ## Roadmap
 
@@ -238,6 +242,20 @@ current boundaries.
 
 Project-owned Terraform, refactoring, automation, and documentation are MIT licensed. Azure Naming Tool, JupyterHub, Jupyter Docker Stacks, Terraform, Checkov, TFLint, and other dependencies remain the work of their respective authors and retain their own licenses.
 
-## Publication
+## Maintainer and publication history
 
-Use the publication sequence in [`docs/github-publication.md`](docs/github-publication.md) and the [OIDC](docs/github/oidc-setup.md), [environment](docs/github/environments.md), and [repository-setting](docs/github/repository-settings.md) guides. Third-party ownership boundaries are recorded in [`docs/third-party-attribution.md`](docs/third-party-attribution.md).
+This public repository was reconstructed from a broader Cloud/DevOps training
+and delivery workspace. Unsafe generated artifacts, credentials, scanner
+outputs, binaries, and copied upstream repositories were excluded; the useful
+project-owned Terraform architecture, automation, and documentation were
+retained. The historical repository remains private and unrelated through
+GitHub fork/network metadata.
+
+See the [publication audit summary](docs/security/publication-audit-summary.md)
+for the sanitization evidence and
+[`docs/github-publication.md`](docs/github-publication.md) for the maintained
+release procedure. The [OIDC](docs/github/oidc-setup.md),
+[environment](docs/github/environments.md), and
+[repository-setting](docs/github/repository-settings.md) guides document the
+prepared GitHub path. Third-party ownership boundaries are recorded in
+[`docs/third-party-attribution.md`](docs/third-party-attribution.md).
