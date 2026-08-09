@@ -5,7 +5,7 @@
 The foundation path was deployed, smoke-tested, verified for no drift, destroyed, and residual-checked. AKS, JupyterHub, and GitHub OIDC remain implemented or documented but not runtime-validated.
 
 [![Validate](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/validate.yml)
-[![Dependency review](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/dependency-review.yml/badge.svg?branch=main)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/dependency-review.yml)
+[![Dependency review](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/dependency-review.yml)
 [![Release](https://img.shields.io/github/v/release/goozcena-gnl/azure-data-landing-zone-platform?display_name=tag&sort=semver)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
