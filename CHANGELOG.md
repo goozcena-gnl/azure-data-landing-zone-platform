@@ -2,12 +2,14 @@
 
 ## [Unreleased]
 
-No changes are currently documented outside the prepared v0.1.0 scope.
+No changes are currently documented after v0.1.0.
 
-## [0.1.0] - prepared for release
+## [0.1.0] - 2026-07-28
 
-This section records the release candidate scope. The v0.1.0 artifacts, tag,
-and GitHub Release have not yet been created or published.
+This section records the published v0.1.0 scope. The annotated tag and GitHub
+Release were published from commit
+`e66ce2a54d624206f4a81014fa265521137e41b5` with the tracked-file archive,
+manifest, and checksums.
 
 ### Added
 

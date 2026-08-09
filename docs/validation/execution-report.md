@@ -1,5 +1,10 @@
 # Validation execution report
 
+> **Current-state note (2026-08-09):** v0.1.0 was subsequently published on
+> 2026-07-28 from commit `e66ce2a54d624206f4a81014fa265521137e41b5`
+> with verified release assets. The `NOT RUN` statuses below describe the
+> earlier execution point and are retained as historical evidence.
+
 ## Release status and historical merge results
 
 - Observation date: 2026-07-28
