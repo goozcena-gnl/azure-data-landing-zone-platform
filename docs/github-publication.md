@@ -1,6 +1,6 @@
 # GitHub publication and release procedure
 
-## Release reference and current v0.1.0 gate
+## Published v0.1.0 reference
 
 Pull request #5 was rebase-merged with historical merge result
 `f357c7db3652c0d645eff575153511186912209c`. Pull request #6 was
@@ -12,11 +12,10 @@ The clean replacement repository is public, while the historical repository
 remains private. Secret scanning user alerts, push protection, private
 vulnerability reporting, and the active `Protect main` ruleset are enabled.
 
-No v0.1.0 artifact, tag, or GitHub Release exists yet. The authoritative
-v0.1.0 release source will be the commit targeted by the annotated `v0.1.0`
-tag. The tag is the immutable repository reference. Record its exact target
-SHA in the external/private release-readiness report and the public GitHub
-Release notes after final validation and tag creation.
+The annotated `v0.1.0` tag and GitHub Release were published on 2026-07-28 from
+commit `e66ce2a54d624206f4a81014fa265521137e41b5`. The release includes the
+tracked-file archive, file manifest, and checksums. The tag remains the
+immutable repository reference.
 
 ## Completed v0.1.0 gates
 
@@ -32,15 +31,17 @@ Release notes after final validation and tag creation.
    release branch was deleted.
 8. Pull request #6 passed its required checks, was rebase-merged, and its
    documentation branch was deleted.
+9. The exact release commit passed the release validation and packaging suite.
+10. The annotated tag and GitHub Release were published with three assets.
+11. The published assets were downloaded and independently verified.
 
-## Remaining v0.1.0 gates
+## Future release gates
 
-1. Complete validation of the exact `main` commit selected for release.
+1. Select and validate the exact `main` commit for the release.
 2. Generate and independently verify the release artifacts.
-3. Create and verify the annotated `v0.1.0` tag.
-4. Push the verified tag.
-5. Publish the GitHub Release and its three assets.
-6. Download the published assets and verify their checksums and ZIP contents.
+3. Create, verify, and publish a new annotated version tag.
+4. Publish the GitHub Release and its assets.
+5. Download the published assets and verify their checksums and ZIP contents.
 
 Each mutation remains a separate authorization gate. Artifact generation does
 not authorize tagging, tag publication, or GitHub Release publication.
@@ -51,11 +52,11 @@ complete execution report as a pull-request description.
 ## Recommended public metadata
 
 - Repository: `azure-data-landing-zone-platform`
-- Description: `Cost-controlled Azure landing-zone lab with Terraform, policy, AKS, OIDC CI/CD, security checks, and reproducible validation.`
+- Description: `Terraform-based Azure landing-zone lab with modular networking, governance, secure remote state, GitHub Actions, and a validated foundation lifecycle.`
 - Initial public release: `v0.1.0`
-- Topics: `azure`, `terraform`, `aks`, `devops`, `infrastructure-as-code`,
-  `azure-devops`, `github-actions`, `cloud-security`, `landing-zone`,
-  `platform-engineering`, `checkov`, `tflint`
+- Topics: `azure`, `terraform`, `azure-landing-zones`,
+  `infrastructure-as-code`, `cloud-platform`, `azure-governance`,
+  `azure-policy`, `github-actions`, `devsecops`, `aks`
 
 The foundation lifecycle is empirically validated. AKS, JupyterHub, GitHub OIDC,
 protected environments, and GitHub-driven deployment remain explicit
@@ -91,16 +92,18 @@ Create a new empty output directory outside the repository, then regenerate the
 tracked-file-only archive, manifest, and checksums:
 
 ```bash
+RELEASE_VERSION="<new-version>"
 RELEASE_DIR="<absolute-empty-release-output-directory>"
 mkdir -p "$RELEASE_DIR"
 OUTPUT_DIR="$RELEASE_DIR" \
-  bash scripts/package-release.sh --output-dir "$RELEASE_DIR" --version v0.1.0
+  bash scripts/package-release.sh --output-dir "$RELEASE_DIR" \
+  --version "$RELEASE_VERSION"
 sha256sum -c "$RELEASE_DIR/SHA256SUMS"
 ```
 
 The package command creates and verifies:
 
-- `azure-data-landing-zone-platform-v0.1.0.zip`;
+- `azure-data-landing-zone-platform-$RELEASE_VERSION.zip`;
 - `file-manifest.csv`;
 - `SHA256SUMS`.
 
@@ -109,9 +112,9 @@ suite from the extracted repository root:
 
 ```bash
 mkdir "$RELEASE_DIR/extracted"
-unzip -q "$RELEASE_DIR/azure-data-landing-zone-platform-v0.1.0.zip" \
+unzip -q "$RELEASE_DIR/azure-data-landing-zone-platform-$RELEASE_VERSION.zip" \
   -d "$RELEASE_DIR/extracted"
-cd "$RELEASE_DIR/extracted/azure-data-landing-zone-platform-v0.1.0"
+cd "$RELEASE_DIR/extracted/azure-data-landing-zone-platform-$RELEASE_VERSION"
 
 make test
 terraform fmt -check -recursive
@@ -138,16 +141,16 @@ Only after separate tag, tag-push, and release-publication authorizations, use:
 ```bash
 cd "<absolute-source-repository-directory>"
 RELEASE_SHA=$(git rev-parse HEAD)
-git tag -a v0.1.0 "$RELEASE_SHA" \
-  -m "v0.1.0: validated Azure foundation lifecycle"
-git push origin v0.1.0
+git tag -a "$RELEASE_VERSION" "$RELEASE_SHA" \
+  -m "$RELEASE_VERSION: validated Azure foundation lifecycle"
+git push origin "$RELEASE_VERSION"
 
-gh release create v0.1.0 \
+gh release create "$RELEASE_VERSION" \
   --repo "<github-owner>/<repository>" \
   --verify-tag \
-  --title "v0.1.0 — Validated Azure foundation lifecycle" \
+  --title "$RELEASE_VERSION — Validated Azure foundation lifecycle" \
   --notes-file CHANGELOG.md \
-  "$RELEASE_DIR/azure-data-landing-zone-platform-v0.1.0.zip" \
+  "$RELEASE_DIR/azure-data-landing-zone-platform-$RELEASE_VERSION.zip" \
   "$RELEASE_DIR/file-manifest.csv" \
   "$RELEASE_DIR/SHA256SUMS"
 ```
@@ -155,16 +158,16 @@ gh release create v0.1.0 \
 Verify the published tag and downloadable assets in a second clean directory:
 
 ```bash
-gh release view v0.1.0 \
+gh release view "$RELEASE_VERSION" \
   --repo "<github-owner>/<repository>" \
   --json tagName,targetCommitish,isDraft,isPrerelease,url,assets
 
-gh release download v0.1.0 \
+gh release download "$RELEASE_VERSION" \
   --repo "<github-owner>/<repository>" \
   --dir "<absolute-clean-download-directory>"
 cd "<absolute-clean-download-directory>"
 sha256sum -c SHA256SUMS
-unzip -t azure-data-landing-zone-platform-v0.1.0.zip
+unzip -t "azure-data-landing-zone-platform-$RELEASE_VERSION.zip"
 ```
 
 Release rollback means deleting the GitHub Release and remote tag only after a

@@ -1,20 +1,15 @@
 # Azure Data Landing Zone Platform
 
-A portfolio-oriented Azure landing-zone lab demonstrating modular Terraform, governance, networking, observability, AKS, workload identity, secure state management, and reviewed CI/CD without presenting an unverified lab as production-ready.
+> A Terraform-based Azure cloud platform lab combining governance, networking, secure state, and an empirically validated deploy–destroy lifecycle.
 
-> **Status:** the clean replacement repository is public, while the historical
-> repository remains private. Pull request #5 was rebase-merged, and `main` is
-> protected by the active `Protect main` ruleset. Repository, Terraform, and
-> Dependency Review checks passed; secret scanning, push protection, and
-> private vulnerability reporting are enabled.
->
-> The disposable Azure foundation lifecycle was empirically validated end to
-> end: a reviewed `34 add / 0 change / 0 destroy` plan, exact-plan apply,
-> no-drift refresh, smoke tests, reviewed `34 destroy` plan, exact destruction,
-> residual checks, and separate backend deletion. The v0.1.0 artifacts, tag,
-> and GitHub Release remain pending. AKS, JupyterHub, GitHub OIDC, and
-> GitHub-controlled deployment remain unvalidated. See the
-> [sanitized lifecycle evidence](docs/validation/2026-07-18-foundation-lifecycle.md).
+The foundation path was deployed, smoke-tested, verified for no drift, destroyed, and residual-checked. AKS, JupyterHub, and GitHub OIDC remain implemented or documented but not runtime-validated.
+
+[![Validate](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/validate.yml)
+[![Dependency review](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/dependency-review.yml/badge.svg?branch=main)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/actions/workflows/dependency-review.yml)
+[![Release](https://img.shields.io/github/v/release/goozcena-gnl/azure-data-landing-zone-platform?display_name=tag&sort=semver)](https://github.com/goozcena-gnl/azure-data-landing-zone-platform/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+Evidence: [foundation lifecycle record](docs/validation/2026-07-18-foundation-lifecycle.md) and [test matrix](docs/validation/test-matrix.md).
 
 ## Project value
 
@@ -192,6 +187,16 @@ Test matrix: [`docs/validation/test-matrix.md`](docs/validation/test-matrix.md).
 
 Validated lifecycle record: [`docs/validation/2026-07-18-foundation-lifecycle.md`](docs/validation/2026-07-18-foundation-lifecycle.md).
 
+The detailed foundation evidence records a reviewed
+`34 add / 0 change / 0 destroy` plan, exact-plan apply, no-drift refresh, smoke
+tests, a reviewed `34 destroy` plan, exact destruction, residual checks, and
+separate backend deletion.
+
+The clean replacement repository is public, while the historical repository
+remains private. The active `Protect main` ruleset protects `main`; repository,
+Terraform, and Dependency Review checks passed, and secret scanning, push
+protection, and private vulnerability reporting are enabled.
+
 ## Teardown
 
 ```bash
@@ -217,8 +222,8 @@ current boundaries.
 
 ## Roadmap
 
-1. Complete reproducible v0.1.0 packaging, annotated tagging, tag publication,
-   GitHub Release publication, and downloaded-asset verification.
+1. Maintain reproducible packaging and independently verify future release
+   assets.
 2. Maintain pinned dependencies through reviewed Dependabot pull requests.
 3. Scope v0.2.0 work for GitHub OIDC, an explicit AKS
    region/SKU/quota/admin-group decision, and optional JupyterHub validation.
