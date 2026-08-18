@@ -1,16 +1,27 @@
 .DEFAULT_GOAL := help
 SHELL := /usr/bin/env bash
 
-.PHONY: help format lint validate terraform-test security backend-test test aks-preflight plan-lab deploy-lab smoke-test destroy-lab docs-check package-release
+.PHONY: help bootstrap doctor format lint lint-strict lint-best-effort validate terraform-test security backend-test bats-test tooling-test test test-strict test-container scan-container aks-preflight plan-lab deploy-lab smoke-test destroy-lab docs-check package-release
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "; printf "Usage: make <target>\n\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
+bootstrap: ## Install the supported user-local validation toolchain
+	bash ./scripts/bootstrap-local.sh
+
+doctor: ## Verify strict local-validation prerequisites without network or cloud access
+	bash ./scripts/doctor.sh
+
 format: ## Format Terraform files
 	terraform fmt -recursive
 
-lint: ## Run repository, YAML, shell, and Terraform lint checks
-	bash ./scripts/lint.sh
+lint: lint-strict ## Run strict repository, YAML, shell, and Terraform lint checks
+
+lint-strict: ## Fail when any required lint tool is missing
+	bash ./scripts/lint.sh --strict
+
+lint-best-effort: ## Run available linters and report explicit skips
+	bash ./scripts/lint.sh --best-effort
 
 validate: ## Initialize Terraform without the remote backend and validate
 	bash ./scripts/terraform-validate.sh
@@ -25,7 +36,21 @@ security: ## Run Checkov and deterministic secret-pattern scanning
 backend-test: ## Run fixture-only backend helper regressions
 	bash ./terraform_backend_setup/tests/regression.sh
 
-test: lint validate terraform-test security backend-test docs-check ## Run all non-deployment checks
+bats-test: ## Run local-environment and existing backend Bats tests
+	bats tests/*.bats terraform_backend_setup/tests/terraform_setup.bats
+
+tooling-test: ## Run tool-manifest and version-drift unit tests
+	python3 -m unittest discover -v -s tests -p 'test_*.py'
+
+test: test-strict ## Run all strict non-deployment checks
+
+test-strict: doctor lint-strict tooling-test validate terraform-test security backend-test bats-test docs-check ## Run CI-equivalent non-deployment checks
+
+test-container: ## Build the Dev Container image and run strict validation in it
+	bash ./scripts/test-container.sh
+
+scan-container: ## Build the Dev Container without cache and enforce image security policy
+	bash ./scripts/scan-container.sh --build-no-cache
 
 aks-preflight: ## Run read-only AKS subscription, SKU, quota, and identity checks
 	bash ./scripts/aks-preflight.sh

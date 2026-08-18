@@ -19,5 +19,5 @@ if command -v checkov >/dev/null 2>&1; then
   done
   checkov --directory . --config-file .checkov.yml --output cli --skip-download
 else
-  die 'checkov is required. Install checkov==3.3.8 in an isolated environment.'
+  die 'checkov is required. Install checkov==3.3.10 in an isolated environment.'
 fi

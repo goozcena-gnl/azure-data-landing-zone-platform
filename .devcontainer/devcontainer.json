@@ -1,0 +1,23 @@
+{
+  "name": "Azure data landing zone — local validation",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "ubuntu",
+  "updateRemoteUserUID": true,
+  "postCreateCommand": "bash scripts/bootstrap-local.sh --python-only && . .venv/bin/activate && make doctor",
+  "containerEnv": {
+    "TF_IN_AUTOMATION": "true",
+    "TF_INPUT": "false"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "hashicorp.terraform",
+        "ms-python.python",
+        "redhat.vscode-yaml"
+      ]
+    }
+  }
+}
