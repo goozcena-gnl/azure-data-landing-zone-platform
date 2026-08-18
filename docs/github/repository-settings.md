@@ -34,7 +34,7 @@ The ruleset requires:
 - conversation resolution;
 - a current branch before merge;
 - linear history with squash or rebase merge;
-- the three GitHub Actions checks below;
+- the four GitHub Actions checks below;
 - blocked force pushes and branch deletion.
 
 | GitHub check | Ruleset context | Source |
@@ -42,6 +42,7 @@ The ruleset requires:
 | `Validate / repository` | `repository` | GitHub Actions app `15368` |
 | `Validate / terraform` | `terraform` | GitHub Actions app `15368` |
 | `Dependency review / review` | `review` | GitHub Actions app `15368` |
+| `Plumber CI/CD Security / Plumber gate` | `Plumber gate` | GitHub Actions app `15368` |
 
 GitHub's ruleset API uses the job context, not the displayed
 `workflow / job` label. The job names are unique across repository workflows.
@@ -101,6 +102,68 @@ permissions are declared explicitly. Secret scanning complements, but does not
 replace, credential revocation, history review, or deterministic repository
 scanning.
 
+## Plumber CI/CD security gate
+
+The `Plumber CI/CD Security` workflow scans every GitHub Actions workflow on
+pull requests to `main`, pushes to `main`, and manual dispatches. It has no path
+filter, so workflow, local-action, script, Dependabot, and policy changes cannot
+bypass the gate. The stable job name is `Plumber gate`; require its observed
+GitHub check context alongside the existing validation and dependency-review
+contexts only after a successful run has created that context.
+
+The gate requires a Plumber Score of A and fails closed on findings, invalid
+configuration, runtime errors, warnings, and controls that Plumber cannot
+verify. External score publication is disabled: reports stay in GitHub rather
+than being sent to the hosted badge service. The job receives only
+`contents: read` and `security-events: write`; it receives no Azure variables,
+environment, deployment permission, secret, or `id-token: write`. It runs on
+GitHub-hosted `ubuntu-24.04`, never on the privileged `azure-lab` runner.
+
+Plumber verifies external action sources and immutable pins, dangerous triggers,
+permissions, secret exposure, untrusted input use, mutable remote execution,
+known action vulnerabilities, and related CI/CD supply-chain controls. Its
+official action verifies the selected binary against the release checksum and
+GitHub build-provenance attestation. The repository overlay keeps Plumber's
+maintained defaults, removes GitHub-owner exemptions from SHA enforcement, and
+authorizes only the exact additional action already used by this repository.
+The repository Actions policy likewise keeps full-length SHA enforcement and
+adds only `getplumber/plumber@7ad9d267ee5a00163cec9e5c749a088d5f565167`
+to its existing external-action allowlist.
+
+Successful and failed runs produce JSON, SARIF, PBOM, and CycloneDX reports.
+SARIF findings appear under GitHub Code scanning. The report bundle appears as
+the `plumber-security-reports` workflow artifact; Plumber v0.4.26's official
+action fixes its retention at 30 days. Generated reports are ignored locally
+and must not be committed or attached to public issues.
+
+Run the same release locally after verifying its checksum and provenance:
+
+```bash
+plumber version
+plumber config validate --config .plumber.yaml --fail-warnings
+plumber config resolve --config .plumber.yaml
+plumber analyze --config .plumber.yaml --min-score A --fail-warnings
+```
+
+The committed repository policy additionally rejects every external `uses:`
+reference that lacks a full 40-character commit SHA and adjacent semantic
+version comment. Verify every changed pin against its official upstream tag;
+the comment is review context, while the SHA is the executed identity.
+
+Plumber complements rather than replaces Checkov, TFLint, Terraform formatting
+and validation, provider-mocked Terraform tests, deterministic secret scanning,
+CodeQL, dependency review, branch protection, Azure Policy, Microsoft Defender
+for Cloud, environment approvals, OIDC controls, runner hardening, or Terraform
+plan-integrity verification. In particular, a clean static result cannot prove
+that a persistent self-hosted runner is isolated, patched, uncompromised, or
+free of residue from a previous privileged job.
+
+If the required Plumber context must be retired, first remove or replace that
+exact context in the active ruleset so `main` does not become permanently
+unmergeable. Then revert the workflow, configuration, documentation, ignore
+rules, and repository-policy changes through a reviewed pull request. Never
+delete or rename the workflow first while its old context is still required.
+
 ## Self-hosted runner
 
 The `azure-lab` runner must not execute untrusted pull-request code. Use an
@@ -112,7 +175,7 @@ network egress, and no access to unrelated repositories.
 
 The active ruleset must not be edited, deleted, or replaced without separate
 authorization and a verified recovery plan. If a future repository or an
-explicitly approved recovery requires recreation, first confirm all three
+explicitly approved recovery requires recreation, first confirm all four
 checks on the exact reviewed pull-request head, then submit the canonical
 payload:
 
