@@ -24,7 +24,7 @@ drifts from it.
 | Python tested patch | 3.12.3 | Lock generation and recorded test baseline |
 | Node.js | 24.18.1 | Exact Markdownlint CLI installation and execution |
 | npm | 12.0.2 | Bootstrap-only installer; removed after tool installation |
-| Checkov | 3.3.8 | IaC security checks |
+| Checkov | 3.3.10 | IaC security checks |
 | Yamllint | 1.38.0 | YAML lint |
 | ShellCheck | 0.11.0 | Shell static analysis |
 | Markdownlint CLI | 0.49.1 | Markdown lint |

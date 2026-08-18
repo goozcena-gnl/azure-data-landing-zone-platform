@@ -48,6 +48,6 @@ stages:
 
           - bash: |
               set -euo pipefail
-              python3 -m pip install --disable-pip-version-check --no-input checkov==3.3.8
+              python3 -m pip install --disable-pip-version-check --no-input checkov==3.3.10
               checkov --directory . --config-file .checkov.yml
             displayName: Checkov IaC scan

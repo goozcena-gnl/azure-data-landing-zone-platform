@@ -38,7 +38,7 @@ create_fixture_tools() {
   write_tool terraform 'printf "Terraform v1.15.8\n"'
   write_tool npm 'printf "12.0.2\n"'
   write_tool tflint 'printf "TFLint version 0.64.0\n"'
-  write_tool checkov 'printf "3.3.8\n"'
+  write_tool checkov 'printf "3.3.10\n"'
   write_tool yamllint 'printf "yamllint 1.38.0\n"'
   write_tool shellcheck 'printf "ShellCheck - shell script analysis tool\nversion: 0.11.0\n"'
   write_tool markdownlint 'printf "0.49.1\n"'

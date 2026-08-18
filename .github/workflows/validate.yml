@@ -95,7 +95,7 @@ jobs:
           python3 -m pip install \
             --disable-pip-version-check \
             --no-input \
-            checkov==3.3.8
+            checkov==3.3.10
           bash ./scripts/security-scan.sh
 
   container-security:
