@@ -10,6 +10,7 @@ pr:
 
 variables:
   terraformVersion: '1.15.8'
+  terraformLinuxAmd64Sha256: 'd25ce7b6902013ad905db3d2eab0be4cd905887fe88b81a6171b8d5503c31f3d'
   terraformWorkingDirectory: 'infra/landing-zone'
 
 stages:
@@ -28,7 +29,7 @@ stages:
               set -euo pipefail
               curl -fsSLo terraform.zip \
                 "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip"
-              echo "d25ce7b6902013ad905db3d2eab0be4cd905887fe88b81a6171b8d5503c31f3d  terraform.zip" | sha256sum -c -
+              echo "$(terraformLinuxAmd64Sha256)  terraform.zip" | sha256sum -c -
               unzip -q terraform.zip
               sudo install -m 0755 terraform /usr/local/bin/terraform
               terraform version

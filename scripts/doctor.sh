@@ -3,6 +3,9 @@ set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd -- "$SCRIPT_DIR/.." && pwd)
+if [[ "${DOCTOR_TEST_MODE:-0}" == 1 && -n "${DOCTOR_TEST_REPO_ROOT:-}" ]]; then
+  REPO_ROOT=$(readlink -f -- "$DOCTOR_TEST_REPO_ROOT")
+fi
 VERSIONS_FILE="$REPO_ROOT/tools/versions.env"
 CHECK_CONTAINER=false
 
@@ -57,8 +60,11 @@ else
 fi
 if [[ "${DOCTOR_TEST_MODE:-0}" != 1 && -f /.dockerenv ]]; then
   platform="Linux container"
-elif [[ "$kernel_release" =~ [Mm]icrosoft|WSL ]]; then
+elif [[ "$kernel_release" =~ WSL2|wsl2 ]]; then
   platform="WSL 2"
+elif [[ "$kernel_release" =~ [Mm]icrosoft|WSL|wsl ]]; then
+  printf 'ERROR: WSL 1 is unsupported. Upgrade the distribution to WSL 2 or use the Dev Container.\n' >&2
+  exit 1
 else
   platform="Linux"
 fi
@@ -92,6 +98,7 @@ actual_version() {
   case "$1" in
     python3) python3 --version 2>&1 | awk '{print $2}' ;;
     node) node --version 2>&1 | awk 'NR==1 {sub(/^v/,"",$1); print $1}' ;;
+    npm) npm --version 2>&1 | awk 'NR==1 {print $1}' ;;
     terraform) terraform version 2>&1 | awk 'NR==1 {sub(/^v/,"",$2); print $2}' ;;
     tflint) tflint --version 2>&1 | awk 'NR==1 {sub(/^v/,"",$3); print $3}' ;;
     checkov) checkov --version 2>&1 | awk 'NR==1 {print $1}' ;;
@@ -134,6 +141,21 @@ check_version() {
   fi
 }
 
+check_python_series() {
+  local observed
+  if ! command_available python3; then
+    fail "python3" "required $PYTHON_SERIES.x; executable is missing"
+    return
+  fi
+  observed=$(normalize_version "$(actual_version python3)")
+  case "$observed" in
+    "$PYTHON_SERIES"|"$PYTHON_SERIES".*)
+      pass "python3" "$observed (supported $PYTHON_SERIES.x; tested $PYTHON_TESTED_VERSION)"
+      ;;
+    *) fail "python3" "${observed:-unknown} (supported $PYTHON_SERIES.x; tested $PYTHON_TESTED_VERSION)" ;;
+  esac
+}
+
 check_optional_version() {
   local command=$1 expected=$2 observed
   if ! command_available "$command"; then
@@ -152,11 +174,29 @@ printf 'Local environment doctor\n'
 printf 'Platform: %s\n' "$platform"
 printf 'Manifest: tools/versions.env\n\n'
 
-for command in bash git make curl unzip sha256sum; do
+for command in bash git make curl unzip sha256sum readlink; do
   check_presence "$command"
 done
-check_version python3 "$PYTHON_VERSION"
+
+expected_venv=$(readlink -f -- "$REPO_ROOT/.venv" 2>/dev/null || true)
+active_venv=$(readlink -f -- "${VIRTUAL_ENV:-}" 2>/dev/null || true)
+if [[ -n "${VIRTUAL_ENV:-}" &&
+      -n "$active_venv" &&
+      "$active_venv" == "$expected_venv" &&
+      -x "$active_venv/bin/python3" ]]; then
+  pass "virtualenv" "repository .venv is active"
+  export PATH="$active_venv/bin:$PATH"
+else
+  fail "virtualenv" "activate the repository .venv; unrelated or stale environments are unsupported"
+fi
+
+check_python_series
 check_version node "$NODE_VERSION"
+if command_available npm; then
+  optional "npm" "available; bootstrap uses $NPM_VERSION transiently for Node-tool installation"
+else
+  optional "npm" "not installed; bootstrap-only and unnecessary after Node-tool installation"
+fi
 check_version terraform "$TERRAFORM_VERSION"
 check_version tflint "$TFLINT_VERSION"
 check_version checkov "$CHECKOV_VERSION"
@@ -177,12 +217,6 @@ for command in az kubelogin; do
     optional "$command" "not installed; required only for optional deployment work"
   fi
 done
-
-if [[ -n "${VIRTUAL_ENV:-}" && -x "${VIRTUAL_ENV}/bin/python3" ]]; then
-  pass "virtualenv" "active"
-else
-  fail "virtualenv" "activate the repository .venv before strict validation"
-fi
 
 autocrlf=$(git -C "$REPO_ROOT" config --get core.autocrlf 2>/dev/null || true)
 if [[ "$autocrlf" == "true" ]]; then

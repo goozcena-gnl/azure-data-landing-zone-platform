@@ -1,52 +1,47 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import argparse
 import re
-import subprocess
+import sys
 from pathlib import Path
 
-root = Path(__file__).resolve().parents[1]
-pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-errors: list[str] = []
-listed = subprocess.run(
-    [
-        "git",
-        "-C",
-        str(root),
-        "ls-files",
-        "--cached",
-        "--others",
-        "--exclude-standard",
-        "-z",
-        "--",
-        "*.md",
-    ],
-    stdout=subprocess.PIPE,
-    stderr=subprocess.DEVNULL,
-)
-if listed.returncode == 0:
-    paths = (
-        root / relative.decode("utf-8")
-        for relative in listed.stdout.split(b"\0")
-        if relative
-    )
-else:
-    # Release archives intentionally contain no .git directory.
-    paths = (
-        path
-        for path in sorted(root.rglob("*.md"))
-        if ".git" not in path.relative_to(root).parts
-    )
-for path in paths:
-    text = path.read_text(encoding="utf-8")
-    for target in pattern.findall(text):
-        target = target.strip().split("#", 1)[0]
-        if not target or target.startswith(("http://", "https://", "mailto:")):
-            continue
-        candidate = (path.parent / target).resolve()
-        if not candidate.exists():
-            errors.append(f"{path.relative_to(root)} -> {target}")
-if errors:
-    print("Broken local Markdown links:")
-    print("\n".join(f"- {item}" for item in errors))
-    raise SystemExit(1)
-print("Local Markdown links: PASS")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from file_inventory import InventoryError, inventory_files  # noqa: E402
+
+
+PATTERN = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+
+
+def check_document_links(root: Path) -> list[str]:
+    root = root.resolve()
+    errors: list[str] = []
+    try:
+        paths = [path for path in inventory_files(root) if path.suffix.lower() == ".md"]
+    except InventoryError as error:
+        return [str(error)]
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        for target in PATTERN.findall(text):
+            target = target.strip().split("#", 1)[0]
+            if not target or target.startswith(("http://", "https://", "mailto:")):
+                continue
+            candidate = (path.parent / target).resolve()
+            if not candidate.exists():
+                errors.append(f"{path.relative_to(root)} -> {target}")
+    return errors
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    errors = check_document_links(parser.parse_args().root)
+    if errors:
+        print("Broken local Markdown links:")
+        print("\n".join(f"- {item}" for item in errors))
+        return 1
+    print("Local Markdown links: PASS")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
