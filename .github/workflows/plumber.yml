@@ -27,7 +27,7 @@ jobs:
           persist-credentials: false
 
       - name: Analyze GitHub Actions supply chain
-        uses: getplumber/plumber@7ad9d267ee5a00163cec9e5c749a088d5f565167  # v0.4.26
+        uses: getplumber/plumber@031bc86d1e5f661626e2000f4f8779912d608d5f  # v0.4.39
         with:
           version: v0.4.26
           verify-attestation: true
