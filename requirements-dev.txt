@@ -1,4 +1,4 @@
-checkov==3.3.10
+checkov==3.3.12
 yamllint==1.38.0
 shellcheck-py==0.11.0.1
 python-hcl2==8.1.2
