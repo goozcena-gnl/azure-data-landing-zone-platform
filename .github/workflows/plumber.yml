@@ -27,12 +27,12 @@ jobs:
           persist-credentials: false
 
       - name: Analyze GitHub Actions supply chain
-        uses: getplumber/plumber@7ad9d267ee5a00163cec9e5c749a088d5f565167  # v0.4.26
+        uses: getplumber/plumber@d37150cee04d6627497cb4c6a553ef9a2d6c7548  # v0.5.2
         with:
-          version: v0.4.26
+          version: v0.5.2
           verify-attestation: true
           config-file: .plumber.yaml
-          min-score: A
+          min-points: 100
           fail-warnings: true
           soft-fail: false
           score-push: false
