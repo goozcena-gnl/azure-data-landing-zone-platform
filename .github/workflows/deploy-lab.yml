@@ -80,6 +80,8 @@ jobs:
       - name: Terraform plan
         working-directory: infra/landing-zone
         run: |
+          plan_log="$(mktemp)"
+          trap 'rm -f "$plan_log"' EXIT
           terraform init -input=false \
             -backend-config="resource_group_name=${{ vars.TF_STATE_RESOURCE_GROUP }}" \
             -backend-config="storage_account_name=${{ vars.TF_STATE_STORAGE_ACCOUNT }}" \
@@ -87,7 +89,10 @@ jobs:
             -backend-config="key=${{ vars.TF_STATE_KEY }}" \
             -backend-config="use_azuread_auth=true"
           terraform validate -no-color
-          terraform plan -no-color -input=false -lock-timeout=5m -out=lab.tfplan >/dev/null
+          if ! terraform plan -no-color -input=false -lock-timeout=5m -out=lab.tfplan >"${plan_log}" 2>&1; then
+            cat "${plan_log}"
+            exit 1
+          fi
           sha256sum lab.tfplan > lab.tfplan.sha256
           printf '%s\n' "$GITHUB_SHA" > planned-commit.txt
           bash ../../scripts/ci-context-fingerprint.sh > planned-context.sha256
