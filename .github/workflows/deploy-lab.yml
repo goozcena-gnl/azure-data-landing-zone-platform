@@ -87,8 +87,7 @@ jobs:
             -backend-config="key=${{ vars.TF_STATE_KEY }}" \
             -backend-config="use_azuread_auth=true"
           terraform validate -no-color
-          terraform plan -input=false -lock-timeout=5m -out=lab.tfplan
-          terraform show -no-color lab.tfplan > lab-plan.txt
+          terraform plan -no-color -input=false -lock-timeout=5m -out=lab.tfplan >/dev/null
           sha256sum lab.tfplan > lab.tfplan.sha256
           printf '%s\n' "$GITHUB_SHA" > planned-commit.txt
           bash ../../scripts/ci-context-fingerprint.sh > planned-context.sha256
@@ -100,7 +99,6 @@ jobs:
           path: |
             infra/landing-zone/lab.tfplan
             infra/landing-zone/lab.tfplan.sha256
-            infra/landing-zone/lab-plan.txt
             infra/landing-zone/planned-commit.txt
             infra/landing-zone/planned-context.sha256
           retention-days: 1
@@ -113,7 +111,6 @@ jobs:
           rm -f \
             infra/landing-zone/lab.tfplan \
             infra/landing-zone/lab.tfplan.sha256 \
-            infra/landing-zone/lab-plan.txt \
             infra/landing-zone/planned-commit.txt \
             infra/landing-zone/planned-context.sha256
 
@@ -191,6 +188,5 @@ jobs:
           rm -f \
             infra/landing-zone/lab.tfplan \
             infra/landing-zone/lab.tfplan.sha256 \
-            infra/landing-zone/lab-plan.txt \
             infra/landing-zone/planned-commit.txt \
             infra/landing-zone/planned-context.sha256
