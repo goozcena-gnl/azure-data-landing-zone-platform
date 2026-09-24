@@ -21,6 +21,7 @@ terraform fmt -check -recursive
 bash ./scripts/lint.sh
 bash ./scripts/terraform-validate.sh
 make terraform-test
+tflint --init
 tflint --recursive
 bash ./scripts/security-scan.sh
 python3 scripts/secret-scan.py --root .
