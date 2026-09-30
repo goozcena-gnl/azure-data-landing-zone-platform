@@ -2,10 +2,14 @@
 
 ## Empirical scope
 
-The disposable Azure foundation lifecycle is empirically validated. AKS,
-JupyterHub, GitHub OIDC, protected GitHub Environments, and the GitHub-driven
-deployment lifecycle are implemented or prepared but have not been exercised
-against the real services.
+The disposable Azure foundation lifecycle is empirically validated. The
+following boundaries remain explicitly `NOT RUN` against the real services:
+
+- AKS;
+- JupyterHub;
+- GitHub OIDC;
+- protected GitHub Environments;
+- the GitHub-driven deployment lifecycle.
 
 The project is a laboratory and portfolio reference, not an enterprise landing
 zone or production support commitment.
@@ -73,6 +77,11 @@ remain undeployed, and the project is not production-ready.
 
 Deployment uses a dedicated self-hosted runner label. Operating, patching,
 isolating, and reimaging that runner remain operator responsibilities.
+
+The deploy workflow now avoids storing or logging plaintext `terraform show`
+output, but the binary saved plan still crosses GitHub artifact storage because
+exact-plan apply depends on that exact reviewed file. Treat AZ-01 as partially
+resolved until a stronger reviewed-plan storage boundary exists.
 
 ## Governance and security
 

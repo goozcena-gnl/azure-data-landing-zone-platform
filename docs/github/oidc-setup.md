@@ -133,6 +133,7 @@ Before authorizing apply:
 2. confirm no wildcard subject exists;
 3. confirm environment reviewers and deployment branches;
 4. run the plan workflow with `apply=false`;
-5. inspect the one-day sensitive plan artifact;
-6. approve apply only when the commit marker, plan checksum, and plan content
-   match the reviewed change.
+5. download the one-day sensitive plan artifact into a trusted session and run
+   `sha256sum -c lab.tfplan.sha256` plus `terraform show -no-color lab.tfplan`;
+6. approve apply only when the commit marker, plan checksum, context
+   fingerprint, and locally inspected plan content match the reviewed change.

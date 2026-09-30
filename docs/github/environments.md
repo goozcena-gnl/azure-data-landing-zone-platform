@@ -30,6 +30,35 @@ No environment secret is required for Azure authentication. If a future tool
 needs a secret, document why, scope it to one environment, rotate it, and never
 expose it to pull-request workflows.
 
+## PLAN → APPLY trust boundary
+
+### Assets
+
+- binary Terraform plan: `lab.tfplan`;
+- plan integrity metadata: `lab.tfplan.sha256`, `planned-commit.txt`, and
+  `planned-context.sha256`;
+- Terraform state metadata and backend coordinates;
+- environment and Terraform input variables;
+- Azure resource identifiers and names derived from the reviewed plan;
+- values that Terraform may classify as sensitive.
+
+### Trust boundaries
+
+- dedicated self-hosted runner labelled `azure-lab`;
+- `plan` job execution context;
+- GitHub artifact storage used to bridge `plan` and `apply`;
+- GitHub Environment approval gate on `azure-lab-apply`;
+- `apply` job execution context.
+
+### Invariants
+
+- apply uses the exact reviewed saved plan, not a silent re-plan;
+- the saved-plan SHA-256 must verify before apply;
+- the reviewed commit must equal `GITHUB_SHA`;
+- the reviewed execution context fingerprint must match at apply time;
+- Azure authentication uses OIDC only;
+- no static Azure secret is added to the workflow.
+
 ## Protection recommendations
 
 For `azure-lab-plan`:
@@ -71,10 +100,24 @@ concurrency:
 This serializes state-affecting workflows. Do not change the group between
 deployment and destroy workflows.
 
-The binary plan, checksum, human-readable plan, and commit marker are treated
+The binary plan, checksum, commit marker, and context fingerprint are treated
 as potentially sensitive and retained for one day. Cleanup runs with
 `if: always()` on the self-hosted runner. The artifact must not be attached to
 a public issue or release.
+
+The workflow intentionally does not persist `terraform show` output in GitHub
+artifacts or logs. Reviewers must download the binary artifact in a trusted
+session, verify the checksum and metadata, and inspect it locally with the
+pinned Terraform version:
+
+```bash
+sha256sum -c lab.tfplan.sha256
+terraform show -no-color lab.tfplan
+```
+
+AZ-01 is therefore only partially resolved: the plaintext plan no longer crosses
+the job boundary, but the exact saved plan still resides in GitHub artifact
+storage because the apply job must consume that exact reviewed binary.
 
 ## Fork and trigger boundary
 
